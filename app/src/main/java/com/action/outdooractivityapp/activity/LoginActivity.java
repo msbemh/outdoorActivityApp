@@ -118,8 +118,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Log.d(TAG,"로그인 onStart()");
 
         //이미 로그인한 상태라면
+        Log.d(TAG,"userMap:"+userMap);
         if(userMap.size() != 0){
-            Log.d(TAG,"userMap:"+userMap);
             intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             Toast.makeText(this,"이미 로그인한 상태입니다.",Toast.LENGTH_SHORT).show();

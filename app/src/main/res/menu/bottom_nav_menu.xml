@@ -3,13 +3,13 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/icon_home"
-        android:title="홈" />
+        android:icon="@drawable/icon_compass"
+        android:title="활동기록" />
 
     <item
-        android:id="@+id/navigation_evaluate"
-        android:icon="@android:drawable/btn_star"
-        android:title="평가하기" />
+        android:id="@+id/navigation_together"
+        android:icon="@drawable/icon_together"
+        android:title="함께하기" />
 
     <item
         android:id="@+id/navigation_my"

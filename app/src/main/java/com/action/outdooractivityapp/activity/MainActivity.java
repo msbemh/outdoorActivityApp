@@ -16,14 +16,27 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private Intent intent;
+    private BottomNavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializeView();
+
+        registerListener();
+
         Log.d(TAG,LoginActivity.userMap.toString());
 
+    }
+
+    void initializeView(){
+        navView = findViewById(R.id.nav_view);
+    }
+
+    void registerListener(){
+        navView.setOnNavigationItemSelectedListener(OnNavigationItemSelectedListener);
     }
 
     /*하단 네비게이션바 Listener*/
@@ -37,22 +50,30 @@ public class MainActivity extends AppCompatActivity {
                     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
                     startActivity(intent);
                     return true;
-                /*평가하기 선택*/
-                case R.id.navigation_evaluate:
-                    
+                /*함께하기 선택*/
+                case R.id.navigation_together:
+
 //                    intent = new Intent(MainActivity.this, EvaluateMovieActivity.class);
 //                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
 //                    startActivity(intent);
                     return true;
-                /*평가하기 선택*/
+                /*마이페이지이 선택*/
                 case R.id.navigation_my:
-//                    intent = new Intent(MainActivity.this, MyPageActivity.class);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
-//                    startActivity(intent);
+                    intent = new Intent(MainActivity.this, MyPageActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+                    startActivity(intent);
                     return true;
-
             }
             return false;
         }
     };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG,"메인 onResume()");
+        /*하단 네비게이션 checked표시*/
+        navView.getMenu().getItem(0).setChecked(true);
+
+    }
 }
