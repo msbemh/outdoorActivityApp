@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 /*평가하기 선택*/
                 case R.id.navigation_evaluate:
+                    
 //                    intent = new Intent(MainActivity.this, EvaluateMovieActivity.class);
 //                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
 //                    startActivity(intent);
