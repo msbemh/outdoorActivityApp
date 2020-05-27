@@ -208,7 +208,8 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this,"com.example.testapp.fileprovider",photoFile);
+                photoURI = FileProvider.getUriForFile(this,"com.action.outdooractivityapp.fileprovider",photoFile);
+                Log.d(TAG,"[카메라 URI]:"+photoURI);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
