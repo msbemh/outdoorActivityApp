@@ -3,6 +3,7 @@ package com.action.outdooractivityapp.activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -17,6 +18,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.action.outdooractivityapp.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.net.URI;
+import java.util.Map;
+
 public class MyPageActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Intent intent;
@@ -28,6 +32,8 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
     private Button button_modify_profile;
     private Button button_logout;
 
+    private String nickName = LoginActivity.userMap.get("nick_name").toString();
+    private Map userMap = LoginActivity.userMap;
 
     private static final String TAG = "MyPage";
 
@@ -47,9 +53,9 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         //프로필 수정 버튼 클릭
         if(v.getId() == R.id.button_modify_profile){
-//            intent = new Intent(this, ModifyProfileActivity.class);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); //연속으로 2번 눌러도 activity가 2개 생성되지 않도록 하기위해서 사용.
-//            startActivity(intent);
+            intent = new Intent(this, ModifyProfileActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); //연속으로 2번 눌러도 activity가 2개 생성되지 않도록 하기위해서 사용.
+            startActivity(intent);
         //로그아웃 버튼 클릭
         }else if(v.getId() == R.id.button_logout){
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -62,7 +68,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                         public void onClick(DialogInterface dialog, int which) {
                             intent = new Intent(MyPageActivity.this,LoginActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //현재 TASK 비우기, 새로운 TASK만들기
-                            LoginActivity.userMap.clear();
+                            userMap.clear();
                             startActivity(intent);
                             finish();
                         }
@@ -97,11 +103,12 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
         navView.getMenu().getItem(2).setChecked(true);
 
         //나의 네임 표시
-        text_user_name.setText(LoginActivity.userMap.get("nick_name")+"님");
+        text_user_name.setText(nickName+"님");
 
         //프로필 사진 있으면 보여주기
-        if(LoginActivity.userMap.get("profile_image") != null){
-//            image_profile.setImageURI(userSession.getUri());
+        if(userMap.get("profile_image") !=null && !"null".equals(userMap.get("profile_image").toString())){
+            Uri uri = Uri.parse(userMap.get("profile_image").toString());
+            image_profile.setImageURI(uri);
         //없으면 기본 프로필 사진 보여주기
         }else{
             image_profile.setImageResource(R.drawable.icon_profile);

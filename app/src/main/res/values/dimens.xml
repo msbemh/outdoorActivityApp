@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="popup_width">300dp</dimen>
+    <dimen name="popup_width_350">350dp</dimen>
+    <dimen name="popup_height">500dp</dimen>
+    <dimen name="popup_height_450">450dp</dimen>
+    <dimen name="popup_height_380">380dp</dimen>
+    <dimen name="popup_height_600">600dp</dimen>
+    <dimen name="popup_height_680">680dp</dimen>
+    <dimen name="popup_height_small">300dp</dimen>
+</resources>

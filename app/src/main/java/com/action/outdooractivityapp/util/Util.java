@@ -1,6 +1,9 @@
 package com.action.outdooractivityapp.util;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -10,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -103,6 +108,23 @@ public class Util {
             list.add(value);
         }
         return list;
+    }
+
+    //URI => Bitmap 변경
+    public static Bitmap convertUriToBitmap(Context context, Uri uri){
+
+        Bitmap imageBitmap = null;
+
+        InputStream inputStream = null;
+        try {
+            inputStream = context.getContentResolver().openInputStream(uri);
+            imageBitmap = BitmapFactory.decodeStream(inputStream);
+            inputStream.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return imageBitmap;
     }
 
 }
