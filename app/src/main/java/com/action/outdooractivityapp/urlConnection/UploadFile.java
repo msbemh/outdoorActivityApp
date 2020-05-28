@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
 import com.action.outdooractivityapp.activity.LoginActivity;
+import com.action.outdooractivityapp.util.Util;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -17,6 +20,8 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 public class UploadFile extends AsyncTask<String, String, String> {
 
@@ -180,6 +185,32 @@ public class UploadFile extends AsyncTask<String, String, String> {
         super.onPostExecute(s);
         //프로그래스 대화상장 끄기
         progressDialog.dismiss();
+
+        //------- user정보 서버에서 가져오기 ----------------
+        String url = "https://wowoutdoor.tk/user/select_user_query.php";
+        String parameters = "user_id="+LoginActivity.userMap.get("user_id").toString();
+        String method = "GET";
+
+        //데이터 베이스에서 정보를 가져옴
+        List<Map> resultList = Util.httpConn(url, parameters, method);
+        //이미지 경로 수정
+        LoginActivity.userMap.put("profile_image", resultList.get(0).get("profile_image"));
+        Log.d(TAG,"[바뀐 userMap]:"+LoginActivity.userMap);
+        //---------------------------------------------------
+
+        //------이미지 파일 서버에서 Bitmap으로 가져오기-------
+        BringImageFile bringImageFile = new BringImageFile(LoginActivity.userMap.get("profile_image").toString());
+
+        bringImageFile.start();
+
+        try{
+            bringImageFile.join();
+        }
+        catch(InterruptedException e){
+            e.printStackTrace();
+        }
+        //----------------------------------------------------
+
         //프로필 변경 Activity 끄기
         ((Activity)context).finish();
     }

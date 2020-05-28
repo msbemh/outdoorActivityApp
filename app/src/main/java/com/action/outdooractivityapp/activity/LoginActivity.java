@@ -1,6 +1,7 @@
 package com.action.outdooractivityapp.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,8 +13,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.urlConnection.BringImageFile;
+import com.action.outdooractivityapp.urlConnection.URLConnector;
 import com.action.outdooractivityapp.util.Util;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +35,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     /* 로그인된 user정보 저장 */
     public static Map userMap = new HashMap();
+    public static Bitmap profileImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +71,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             if(checkLogin()){
                 Toast.makeText(this,"로그인 성공",Toast.LENGTH_SHORT).show();
                 intent = new Intent(this, MainActivity.class);
+
+                //------이미지 파일 서버에서 Bitmap으로 가져오기-------
+                BringImageFile bringImageFile = new BringImageFile(userMap.get("profile_image").toString());
+
+                bringImageFile.start();
+
+                try{
+                    bringImageFile.join();
+                }
+                catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+                //----------------------------------------------------
+
                 startActivity(intent);
                 finish();
             //로그인 실패

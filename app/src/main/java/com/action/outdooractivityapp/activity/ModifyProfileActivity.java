@@ -68,9 +68,8 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
 
         //프로필 사진 있으면 보여주기
         if(userMap.get("profile_image") !=null && !"null".equals(userMap.get("profile_image").toString())){
-            Uri uri = Uri.parse(LoginActivity.userMap.get("profile_image").toString());
-            image_profile.setImageURI(uri);
-            //없으면 기본 프로필 사진 보여주기
+            image_profile.setImageBitmap(LoginActivity.profileImage);
+        //없으면 기본 프로필 사진 보여주기
         }else{
             image_profile.setImageResource(R.drawable.icon_profile_invert);
         }
@@ -155,7 +154,7 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
                 //프로필 사진 있으면 보여주기
                 if(uri != null){
                     image_profile.setImageURI(uri);
-                    //없으면 기본 프로필 사진 보여주기
+                //없으면 기본 프로필 사진 보여주기
                 }else{
                     image_profile.setImageResource(R.drawable.icon_profile_invert);
                 }
@@ -183,11 +182,11 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
 //            }
 //        }
 
-        userMap.put("profile_image",uri);
-        Log.d(TAG,"userMap:"+userMap);
-        Toast.makeText(getApplicationContext(),"변경이 완료됐습니다.", Toast.LENGTH_SHORT).show();
-
         uploadFile(currentPhotoPath);
+
+
+
+        Toast.makeText(getApplicationContext(),"변경이 완료됐습니다.", Toast.LENGTH_SHORT).show();
     }
 
     public void uploadFile(String filePath){

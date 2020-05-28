@@ -32,9 +32,6 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
     private Button button_modify_profile;
     private Button button_logout;
 
-    private String nickName = LoginActivity.userMap.get("nick_name").toString();
-    private Map userMap = LoginActivity.userMap;
-
     private static final String TAG = "MyPage";
 
     @Override
@@ -68,7 +65,8 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                         public void onClick(DialogInterface dialog, int which) {
                             intent = new Intent(MyPageActivity.this,LoginActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //현재 TASK 비우기, 새로운 TASK만들기
-                            userMap.clear();
+                            LoginActivity.userMap.clear();
+                            Log.d(TAG,"[로그아웃 확인]"+LoginActivity.userMap);
                             startActivity(intent);
                             finish();
                         }
@@ -103,12 +101,11 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
         navView.getMenu().getItem(2).setChecked(true);
 
         //나의 네임 표시
-        text_user_name.setText(nickName+"님");
+        text_user_name.setText(LoginActivity.userMap.get("nick_name").toString()+"님");
 
         //프로필 사진 있으면 보여주기
-        if(userMap.get("profile_image") !=null && !"null".equals(userMap.get("profile_image").toString())){
-            Uri uri = Uri.parse(userMap.get("profile_image").toString());
-            image_profile.setImageURI(uri);
+        if(LoginActivity.userMap.get("profile_image") !=null && !"null".equals(LoginActivity.userMap.get("profile_image").toString())){
+            image_profile.setImageBitmap(LoginActivity.profileImage);
         //없으면 기본 프로필 사진 보여주기
         }else{
             image_profile.setImageResource(R.drawable.icon_profile);
