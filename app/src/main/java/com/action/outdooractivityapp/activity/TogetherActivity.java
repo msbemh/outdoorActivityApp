@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,11 +13,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.action.outdooractivityapp.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class TogetherActivity extends AppCompatActivity {
+public class TogetherActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "TogetherActivity";
     private Intent intent;
     private BottomNavigationView navView;
+    private ImageView image_plus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,12 +33,21 @@ public class TogetherActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onClick(View v) {
+        if(v.getId() == R.id.image_plus){
+            Log.d(TAG,"플러스 버튼 클릭");
+        }
+    }
+
     void initializeView(){
         navView = findViewById(R.id.nav_view);
+        image_plus = findViewById(R.id.image_plus);
     }
 
     void registerListener(){
         navView.setOnNavigationItemSelectedListener(OnNavigationItemSelectedListener);
+        image_plus.setOnClickListener(this);
     }
 
     /*하단 네비게이션바 Listener*/
@@ -70,9 +82,11 @@ public class TogetherActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG,"메인 onResume()");
+
         /*하단 네비게이션 checked표시*/
-        navView.getMenu().getItem(0).setChecked(true);
+        navView.getMenu().getItem(1).setChecked(true);
 
     }
+
 
 }

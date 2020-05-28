@@ -132,6 +132,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                     intent = new Intent(MyPageActivity.this, TogetherActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
                     startActivity(intent);
+                    return true;
                 /*마이페이지 선택*/
                 case R.id.navigation_my:
                     intent = new Intent(MyPageActivity.this, MyPageActivity.class);
