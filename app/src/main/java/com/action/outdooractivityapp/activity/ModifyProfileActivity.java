@@ -20,6 +20,7 @@ import androidx.core.content.FileProvider;
 
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.popup.TakingImageProfilePopup;
+import com.action.outdooractivityapp.urlConnection.UploadFile;
 import com.action.outdooractivityapp.util.Util;
 
 import java.io.File;
@@ -126,7 +127,7 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
                     String uriString = data.getStringExtra("imageUri");
 
                     //사진 촬영의 경우만 currentPhotoPath값 들어옴.
-                    String currentPhotoPath = data.getStringExtra("currentPhotoPath");
+                    currentPhotoPath = data.getStringExtra("currentPhotoPath");
                     Log.d(TAG,"[넘어온 currentPhotoPath]:"+currentPhotoPath);
                     Log.d(TAG,"[넘어온 uri]:"+uriString);
 
@@ -186,38 +187,19 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
         Log.d(TAG,"userMap:"+userMap);
         Toast.makeText(getApplicationContext(),"변경이 완료됐습니다.", Toast.LENGTH_SHORT).show();
 
-        finish();
+        uploadFile(currentPhotoPath);
     }
 
-//    void saveToExternalStorage(){
-//        try {
-//            File photoFile = null;
-//
-//            photoFile = createImageFile();
-//
-//            if (photoFile != null) {
-//                uri = FileProvider.getUriForFile(this, "com.example.testapp.fileprovider", photoFile);
-////                uri = Uri.fromFile(photoFile);
-//            }
-//            FileOutputStream out = new FileOutputStream(photoFile);
-//            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-//            out.close();
-//        }catch(Exception e){
-//            e.printStackTrace();
-//        }
-//    }
-
-//    //파일생성(timeStamp이용)
-//    private File createImageFile() throws IOException {
-//        // Create an image file name
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        String imageFileName = "JPEG_" + timeStamp + "_";
-//        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-//        File image = File.createTempFile( imageFileName,  /* prefix */".jpg", /* suffix */storageDir/* directory */);
-//        // Save a file: path for use with ACTION_VIEW intents
-//        currentPhotoPath = image.getAbsolutePath();
-//        return image;
-//    }
+    public void uploadFile(String filePath){
+        String url = "https://wowoutdoor.tk/upload_file.php";
+        try{
+            UploadFile uploadFile = new UploadFile(ModifyProfileActivity.this);
+            uploadFile.setPath(filePath);
+            uploadFile.execute(url);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onResume() {

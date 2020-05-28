@@ -3,12 +3,16 @@ package com.action.outdooractivityapp.popup;
 import android.Manifest;
 import android.app.Activity;
 import android.app.SearchManager;
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -186,11 +190,14 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
         File image = File.createTempFile( imageFileName,  ".jpg", storageDir);
+
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
         Log.d(TAG,"[새로 생성된 FILE]:"+image);
         Log.d(TAG,"[새로 생성된 FILE의 절대 경로]:"+currentPhotoPath);
+
         return image;
     }
 
@@ -242,6 +249,7 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
 
     }
 
+    //앨범으로 가져온 경우, 이곳에서 외부저장소에 저장
     void saveToExternalStorage(){
         try {
             File albumFile = null;
@@ -252,6 +260,7 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
                 albumURI = FileProvider.getUriForFile(this, "com.action.outdooractivityapp.fileprovider", albumFile);
                 Log.d(TAG,"[앨범 URI]:"+albumURI);
             }
+
             FileOutputStream out = new FileOutputStream(albumFile);
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.close();
@@ -259,5 +268,6 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
             e.printStackTrace();
         }
     }
+
 
 }
