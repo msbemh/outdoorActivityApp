@@ -68,7 +68,9 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
         edit_user_name.setText(nickName);
 
         //프로필 사진 있으면 보여주기
-        if(userMap.get("profile_image") !=null && !"null".equals(userMap.get("profile_image").toString())){
+        if(userMap.get("profile_image") !=null
+                && !"null".equals(userMap.get("profile_image").toString())
+                && LoginActivity.profileImage != null){
             image_profile.setImageBitmap(LoginActivity.profileImage);
         //없으면 기본 프로필 사진 보여주기
         }else{
@@ -206,7 +208,6 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
                     LoginActivity.userMap.put("profile_image", null);
                     LoginActivity.profileImage = null;
                 }
-
                 //---------------------------------------------------
             }
             finish();

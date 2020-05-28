@@ -104,7 +104,9 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
         text_user_name.setText(LoginActivity.userMap.get("nick_name").toString()+"님");
 
         //프로필 사진 있으면 보여주기
-        if(LoginActivity.userMap.get("profile_image") !=null && !"null".equals(LoginActivity.userMap.get("profile_image").toString())){
+        if(LoginActivity.userMap.get("profile_image") !=null
+                && !"null".equals(LoginActivity.userMap.get("profile_image").toString())
+                && LoginActivity.profileImage != null){
             image_profile.setImageBitmap(LoginActivity.profileImage);
         //없으면 기본 프로필 사진 보여주기
         }else{
@@ -127,10 +129,9 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                     return true;
                 /*함께하기 선택*/
                 case R.id.navigation_together:
-//                    intent = new Intent(MyPageActivity.this, EvaluateMovieActivity.class);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
-//                    startActivity(intent);
-//                    return true;
+                    intent = new Intent(MyPageActivity.this, TogetherActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+                    startActivity(intent);
                 /*마이페이지 선택*/
                 case R.id.navigation_my:
                     intent = new Intent(MyPageActivity.this, MyPageActivity.class);

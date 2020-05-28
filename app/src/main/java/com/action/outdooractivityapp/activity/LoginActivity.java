@@ -71,6 +71,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             if(checkLogin()){
                 Toast.makeText(this,"로그인 성공",Toast.LENGTH_SHORT).show();
                 intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
 
                 //------이미지 파일 서버에서 Bitmap으로 가져오기-------
                 BringImageFile bringImageFile = new BringImageFile(userMap.get("profile_image").toString());
