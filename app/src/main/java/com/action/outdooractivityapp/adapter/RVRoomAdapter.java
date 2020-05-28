@@ -43,6 +43,7 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RVRoomAdapter.ViewHolder
         holder.text_room_no.setText(items.get(position).get("room_no").toString());
         holder.text_user_num.setText(0+"");
         holder.text_writer.setText(items.get(position).get("writer").toString());
+        holder.text_title.setText(items.get(position).get("title").toString());
 
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -77,11 +78,13 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RVRoomAdapter.ViewHolder
         TextView text_room_no;
         TextView text_user_num;
         TextView text_writer;
+        TextView text_title;
         ViewHolder(View itemView) {
             super(itemView);
             text_room_no = (TextView)itemView.findViewById(R.id.text_room_no);
             text_user_num = (TextView)itemView.findViewById(R.id.text_user_num);
             text_writer = (TextView)itemView.findViewById(R.id.text_writer);
+            text_title = (TextView)itemView.findViewById(R.id.text_title);
         }
     }
 }

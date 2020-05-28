@@ -138,7 +138,10 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
         Log.d(TAG,"roomList:"+roomList);
 
         //방리스트 item 다시 변화시키기
-        rvRoomAdapter.notifyDataSetChanged();
+//        rvRoomAdapter.notifyDataSetChanged();
+        /*리사이클러뷰에 adapter적용*/
+        rvRoomAdapter = new RVRoomAdapter(this, roomList, R.layout.row_recyclerview_room);
+        recyclerView_room.setAdapter(rvRoomAdapter);
 
     }
 

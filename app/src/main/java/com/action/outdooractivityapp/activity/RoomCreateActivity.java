@@ -59,6 +59,7 @@ public class RoomCreateActivity extends AppCompatActivity implements View.OnClic
             //데이터베이스에 방 생성하기
             String url = "https://wowoutdoor.tk/room/room_insert_query.php";
             String parameters = "user_id="+LoginActivity.userMap.get("user_id").toString();
+            parameters += "&title="+titleString;
             String method = "POST";
 
             if(TextUtils.isEmpty(titleString)){
