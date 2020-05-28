@@ -23,6 +23,7 @@
         <activity android:name=".activity.SignUpActivity" />
         <activity android:name=".activity.MyPageActivity" />
         <activity android:name=".activity.ModifyProfileActivity" />
+        <activity android:name=".activity.TogetherActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
