@@ -172,7 +172,7 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
         String editUserName = edit_user_name.getText().toString();
         LoginActivity.userMap.put("nick_name", editUserName);
 
-        //------- user정보 서버에서 가져오기 ----------------
+        //------- user닉네임 수정 ----------------
         String url = "https://wowoutdoor.tk/user/nick_name_update_query.php";
         String parameters = "user_id="+LoginActivity.userMap.get("user_id").toString()+"&nick_name="+LoginActivity.userMap.get("nick_name").toString();
         String method = "POST";
@@ -186,7 +186,29 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
         //파일 업로드
         if(currentPhotoPath != null){
             uploadFile(currentPhotoPath);
+        //파일 업로드 없을 경우
         }else{
+            //프로필 사진 초기화일 경우
+            if("initialize".equals(flag)){
+                //------- user프로필 사진경로 null로 바꾸기 ----------------
+                url = "https://wowoutdoor.tk/user/profile_image_update_query.php";
+                parameters = "user_id="+LoginActivity.userMap.get("user_id").toString();
+                method = "POST";
+
+                //데이터 베이스에서 정보를 가져옴
+                resultList = Util.httpConn(url, parameters, method);
+                boolean result = Boolean.parseBoolean(resultList.get(0).get("result").toString());
+                //이미지 경로 수정
+                Log.d(TAG,"result:"+result);
+
+                //로컬 유저 정보 수정
+                if(result){
+                    LoginActivity.userMap.put("profile_image", null);
+                    LoginActivity.profileImage = null;
+                }
+
+                //---------------------------------------------------
+            }
             finish();
         }
 

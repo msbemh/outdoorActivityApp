@@ -186,8 +186,6 @@ public class UploadFile extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        //프로그래스 대화상장 끄기
-        progressDialog.dismiss();
 
         //------- user정보 서버에서 가져오기 ----------------
         String url = "https://wowoutdoor.tk/user/select_user_query.php";
@@ -213,7 +211,8 @@ public class UploadFile extends AsyncTask<String, String, String> {
             e.printStackTrace();
         }
         //----------------------------------------------------
-
+        //프로그래스 대화상장 끄기
+        progressDialog.dismiss();
         //프로필 변경 Activity 끄기
         ((Activity)context).finish();
     }
