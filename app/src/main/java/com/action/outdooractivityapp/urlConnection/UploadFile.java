@@ -8,6 +8,8 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import com.action.outdooractivityapp.activity.LoginActivity;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -108,10 +110,18 @@ public class UploadFile extends AsyncTask<String, String, String> {
 
                 //HTTP Body 설정 (2)
                 dos.writeBytes(twoHyphones + boundary + lineEnd); //Body 파라미터 구분
+                dos.writeBytes("Content-Disposition: form-data; name='user_id'"+ lineEnd);
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(LoginActivity.userMap.get("user_id").toString());
+                dos.writeBytes(lineEnd);
+
+
+                //-------------소스파일을 byte로 읽어서 서버로 보내주자.-----------------
+                //HTTP Body 설정 (3)
+                dos.writeBytes(twoHyphones + boundary + lineEnd); //Body 파라미터 구분
                 dos.writeBytes("Content-Disposition: form-data; name='uploaded_file'; fileName='"+fileName+"'"+lineEnd);
                 dos.writeBytes(lineEnd);
 
-                //-------------소스파일을 byte로 읽어서 서버로 보내주자.-----------------
                 bytesAvailable = fileInputStream.available();
 
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
@@ -125,10 +135,12 @@ public class UploadFile extends AsyncTask<String, String, String> {
                     bufferSize =  Math.min(bytesAvailable, maxBufferSize);
                     bytesRead = fileInputStream.read(buffer, 0, bufferSize);
                 }
-                //-------------------------------------------------------------------------
 
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphones + boundary + lineEnd); //Body 끝
+                //-------------------------------------------------------------------------
+
+
 
                 //----------------- 서버에서의 응답을 받자 ----------------------------------
                 serverResponseCode = conn.getResponseCode();
