@@ -2,17 +2,18 @@ package com.action.outdooractivityapp.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.adapter.RVRoomAdapter;
 import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -27,14 +28,22 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
     private ImageView image_plus;
     private List<Map> roomList;
 
+    private RecyclerView recyclerView_room;
+    public RVRoomAdapter rvRoomAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d(TAG,"함께해요 onCreate()");
+
         setContentView(R.layout.activity_together);
 
         initializeView();
 
         registerListener();
+
+        createApplyRecyclerview();
 
         Log.d(TAG,LoginActivity.userMap.toString());
 
@@ -58,6 +67,30 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
     void registerListener(){
         navView.setOnNavigationItemSelectedListener(OnNavigationItemSelectedListener);
         image_plus.setOnClickListener(this);
+    }
+
+    void createApplyRecyclerview(){
+        /*리사이클러뷰 생성*/
+        recyclerView_room = findViewById(R.id.recyclerView_room);
+        recyclerView_room.setHasFixedSize(true);
+
+        /*리사이클러뷰 레이아웃 생성 및 적용*/
+        LinearLayoutManager layoutManagerRoom = new LinearLayoutManager(this);
+        layoutManagerRoom.setOrientation(LinearLayoutManager.VERTICAL);
+
+        recyclerView_room.setLayoutManager(layoutManagerRoom);
+
+        //데이터베이스에서 방 SELECT하기
+        String url = "https://wowoutdoor.tk/room/room_select_query.php";
+        String method = "GET";
+
+        //데이터 베이스에서 정보를 가져옴
+        roomList = Util.httpConn(url, null, method);
+
+        /*리사이클러뷰에 adapter적용*/
+        rvRoomAdapter = new RVRoomAdapter(this, roomList, R.layout.row_recyclerview_room);
+        recyclerView_room.setAdapter(rvRoomAdapter);
+
     }
 
     /*하단 네비게이션바 Listener*/
@@ -103,6 +136,9 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
         //데이터 베이스에서 정보를 가져옴
         roomList = Util.httpConn(url, null, method);
         Log.d(TAG,"roomList:"+roomList);
+
+        //방리스트 item 다시 변화시키기
+        rvRoomAdapter.notifyDataSetChanged();
 
     }
 
