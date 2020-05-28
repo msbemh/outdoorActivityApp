@@ -18,7 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <activity android:name=".activity.RoomCreateActivity"></activity>
         <activity android:name=".activity.MainActivity" />
         <activity android:name=".activity.SignUpActivity" />
         <activity android:name=".activity.MyPageActivity" />
@@ -38,7 +38,6 @@
         <activity
             android:name=".popup.TakingImageProfilePopup"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog" />
-
         <activity android:name=".activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

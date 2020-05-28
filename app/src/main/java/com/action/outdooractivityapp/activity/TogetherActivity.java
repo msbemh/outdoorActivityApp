@@ -37,6 +37,9 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         if(v.getId() == R.id.image_plus){
             Log.d(TAG,"플러스 버튼 클릭");
+            intent = new Intent(this, RoomCreateActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+            startActivity(intent);
         }
     }
 
