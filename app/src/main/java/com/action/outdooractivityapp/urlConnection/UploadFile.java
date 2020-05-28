@@ -120,7 +120,6 @@ public class UploadFile extends AsyncTask<String, String, String> {
                 dos.writeBytes(LoginActivity.userMap.get("user_id").toString());
                 dos.writeBytes(lineEnd);
 
-
                 //-------------소스파일을 byte로 읽어서 서버로 보내주자.-----------------
                 //HTTP Body 설정 (3)
                 dos.writeBytes(twoHyphones + boundary + lineEnd); //Body 파라미터 구분
@@ -132,10 +131,14 @@ public class UploadFile extends AsyncTask<String, String, String> {
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
                 buffer = new byte[bufferSize];
 
+                //입력스트림으로 부터 0부터 bufferSize만큼 바이트를 읽어서 buffer[]에 저장
+                //읽은 바이트수 리턴
                 bytesRead = fileInputStream.read(buffer, 0, bufferSize);
 
                 while (bytesRead > 0){
+                    //buffer[]에서 0부터 bufferSize만큼 출력하기
                     dos.write(buffer, 0, bufferSize);
+                    //아래는 다시 buffer만들기
                     bytesAvailable = fileInputStream.available();
                     bufferSize =  Math.min(bytesAvailable, maxBufferSize);
                     bytesRead = fileInputStream.read(buffer, 0, bufferSize);

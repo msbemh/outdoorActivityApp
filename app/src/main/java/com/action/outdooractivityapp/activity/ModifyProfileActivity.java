@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class ModifyProfileActivity extends AppCompatActivity implements View.OnClickListener {
@@ -167,24 +168,27 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
 
 
     void saveData(){
-        //userSession의 name 변경
-//        String editUserName = edit_user_name.getText().toString();
-//        LoginActivity.userSession.setUserName(editUserName);
-//
-//        //userList의 userName 변경
-//        for(User userItem : LoginActivity.userList){
-//            //현재 접속된 userId일 경우
-//            if(userItem.getUserId().equals(LoginActivity.userSession.getUserId())){
-//                userItem.setUserName(editUserName);
-//                userItem.setUri(uri);
-//            }else{
-//                //없음
-//            }
-//        }
+        //userMap의 nick_name 변경
+        String editUserName = edit_user_name.getText().toString();
+        LoginActivity.userMap.put("nick_name", editUserName);
 
-        uploadFile(currentPhotoPath);
+        //------- user정보 서버에서 가져오기 ----------------
+        String url = "https://wowoutdoor.tk/user/nick_name_update_query.php";
+        String parameters = "user_id="+LoginActivity.userMap.get("user_id").toString()+"&nick_name="+LoginActivity.userMap.get("nick_name").toString();
+        String method = "POST";
 
+        //데이터 베이스에서 정보를 가져옴
+        List<Map> resultList = Util.httpConn(url, parameters, method);
+        //이미지 경로 수정
+        Log.d(TAG,"result:"+resultList.get(0).get("result"));
+        //---------------------------------------------------
 
+        //파일 업로드
+        if(currentPhotoPath != null){
+            uploadFile(currentPhotoPath);
+        }else{
+            finish();
+        }
 
         Toast.makeText(getApplicationContext(),"변경이 완료됐습니다.", Toast.LENGTH_SHORT).show();
     }
