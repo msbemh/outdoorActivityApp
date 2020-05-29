@@ -24,7 +24,6 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RVRoomAdapter.ViewHolder
     private static final String TAG = "RVRoomAdapter";
 
     public RVRoomAdapter(Context context, List<Map> items, int itemLayout) {
-        Log.d(TAG,"설정");
         this.context = context;
         this.items = items;
         this.itemLayout = itemLayout;
@@ -67,7 +66,6 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RVRoomAdapter.ViewHolder
     @Override
     public int getItemCount() {
         if(items == null){
-            Log.d(TAG,"카운트0");
             return 0;
         }
         return items.size();

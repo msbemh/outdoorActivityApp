@@ -1,20 +1,26 @@
 package com.action.outdooractivityapp.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
 import com.action.outdooractivityapp.socket.SocketClient;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class RoomChatActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -24,6 +30,13 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
     private Button button_send;
     private SocketClient socketClient;
+    private ImageView image_back;
+    private EditText editText_message;
+
+    public static List<Map> messageList = new ArrayList<Map>();
+
+    private RecyclerView recyclerView_chat_message;
+    public static RVChatMessageAdapter rvChatMessageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +53,8 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         int room_no = Integer.parseInt(extras.getString("room_no"));
         Log.d(TAG, "room_no:"+room_no);
 
+        createApplyRecyclerview();
+
     }
 
     @Override
@@ -49,23 +64,65 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
         //소켓 연결
         socketClient = new SocketClient();
-        socketClient.startClient();
+        socketClient.execute();
+//        socketClient.startClient();
     }
 
     void initializeView(){
         button_send = findViewById(R.id.button_send);
+        image_back = findViewById(R.id.image_back);
+        editText_message = findViewById(R.id.editText_message);
     }
 
     void registerListener(){
         button_send.setOnClickListener(this);
+        image_back.setOnClickListener(this);
+    }
+
+    void createApplyRecyclerview(){
+        /*리사이클러뷰 생성*/
+        recyclerView_chat_message = findViewById(R.id.recyclerView_chat_message);
+        recyclerView_chat_message.setHasFixedSize(true);
+
+        /*리사이클러뷰 레이아웃 생성 및 적용*/
+        LinearLayoutManager layoutManagerRoom = new LinearLayoutManager(this);
+        layoutManagerRoom.setOrientation(LinearLayoutManager.VERTICAL);
+
+        recyclerView_chat_message.setLayoutManager(layoutManagerRoom);
+
+        /*리사이클러뷰에 adapter적용*/
+        rvChatMessageAdapter = new RVChatMessageAdapter(this, messageList, R.layout.row_recyclerview_chat_message);
+        recyclerView_chat_message.setAdapter(rvChatMessageAdapter);
+
     }
 
     @Override
     public void onClick(View v) {
+        //보내기 버튼 클릭
         if(v.getId() == R.id.button_send){
             Log.d(TAG,"버튼클릭");
-            String message = "안녕하세요";
-            socketClient.send(message);
+            String sendMessage = editText_message.getText().toString();
+            //보낼 메시지가 존재한다면
+            if(!TextUtils.isEmpty(sendMessage)){
+                //메시지 송신
+                socketClient.send(sendMessage);
+                //메시지 초기화
+                editText_message.setText("");
+            }
+        //뒤로가기 클릭
+        }else if(v.getId() == R.id.image_back){
+            finish();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG,"채팅방 onStop()");
+        socketClient.stopClient();
+        if(socketClient.getStatus() == AsyncTask.Status.RUNNING){
+            Log.d(TAG,"AsyncTask강제종료");
+            socketClient.cancel(true);
         }
     }
 }

@@ -17,6 +17,7 @@ import com.action.outdooractivityapp.adapter.RVRoomAdapter;
 import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -144,6 +145,5 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
         recyclerView_room.setAdapter(rvRoomAdapter);
 
     }
-
 
 }
