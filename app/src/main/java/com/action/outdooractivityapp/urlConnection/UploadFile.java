@@ -3,6 +3,7 @@ package com.action.outdooractivityapp.urlConnection;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
@@ -206,6 +207,9 @@ public class UploadFile extends AsyncTask<String, String, String> {
 
         try{
             bringImageFile.join();
+            //이미지 불러오기 완료되면 가져오기
+            Bitmap bitmap = bringImageFile.getBitmap();
+            LoginActivity.profileImage = bitmap;
         }
         catch(InterruptedException e){
             e.printStackTrace();

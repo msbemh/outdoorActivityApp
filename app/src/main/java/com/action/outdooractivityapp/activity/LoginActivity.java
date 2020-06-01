@@ -80,12 +80,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 try{
                     bringImageFile.join();
+                    //이미지 불러오기 완료되면 가져오기
+                    Bitmap bitmap = bringImageFile.getBitmap();
+                    LoginActivity.profileImage = bitmap;
                 }
                 catch(InterruptedException e){
                     e.printStackTrace();
                 }
                 //----------------------------------------------------
-
+                Log.d(TAG,"[TEST]확인"+LoginActivity.userMap);
                 startActivity(intent);
                 finish();
             //로그인 실패

@@ -161,6 +161,7 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
                 }else{
                     image_profile.setImageResource(R.drawable.icon_profile_invert);
                 }
+                Log.d(TAG,"[TEST]확인"+LoginActivity.userMap);
 
             }else if(resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();

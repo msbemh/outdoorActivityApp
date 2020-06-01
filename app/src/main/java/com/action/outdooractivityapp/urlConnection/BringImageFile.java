@@ -12,6 +12,7 @@ import java.net.URL;
 public class BringImageFile extends Thread {
 
     private String URL;
+    private Bitmap bitmap;
 
     @Override
     public void run() {
@@ -34,13 +35,15 @@ public class BringImageFile extends Thread {
 
                 InputStream is = conn.getInputStream(); //inputStream 값 가져오기
 
-                Bitmap bitmap = BitmapFactory.decodeStream(is); // Bitmap으로 반환
-                LoginActivity.profileImage = bitmap;
-
+                bitmap = BitmapFactory.decodeStream(is); // Bitmap으로 반환
             }
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public Bitmap getBitmap(){
+        return this.bitmap;
     }
 
 }
