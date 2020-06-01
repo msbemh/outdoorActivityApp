@@ -37,6 +37,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
     private RecyclerView recyclerView_chat_message;
     public static RVChatMessageAdapter rvChatMessageAdapter;
+    private int roomNo = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +51,8 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         //방번호 받기
         /*data 받아오기*/
         extras = getIntent().getExtras();
-        int room_no = Integer.parseInt(extras.getString("room_no"));
-        Log.d(TAG, "room_no:"+room_no);
+        roomNo = Integer.parseInt(extras.getString("room_no"));
+        Log.d(TAG, "roomNo:"+roomNo);
 
         createApplyRecyclerview();
 
@@ -63,7 +64,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         Log.d(TAG,"채팅방 onResume()");
 
         //소켓 연결
-        socketClient = new SocketClient();
+        socketClient = new SocketClient(roomNo);
         socketClient.execute();
 //        socketClient.startClient();
     }
@@ -105,6 +106,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             //보낼 메시지가 존재한다면
             if(!TextUtils.isEmpty(sendMessage)){
                 //메시지 송신
+//                sendMessage = LoginActivity.userMap.get("user_id").toString()+"|"+room_no+"|"+sendMessage;
                 socketClient.send(sendMessage);
                 //메시지 초기화
                 editText_message.setText("");
@@ -119,10 +121,34 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     protected void onStop() {
         super.onStop();
         Log.d(TAG,"채팅방 onStop()");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG,"채팅방 onPause()");
+        //소켓종료
         socketClient.stopClient();
+        //AsyncTask종료
         if(socketClient.getStatus() == AsyncTask.Status.RUNNING){
             Log.d(TAG,"AsyncTask강제종료");
             socketClient.cancel(true);
         }
+        //메시지 리스트도 초기화
+        messageList.clear();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"채팅방 onDestroy()");
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG,"채팅방 onRestart()");
     }
 }
