@@ -26,7 +26,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,16 +75,8 @@ public class SocketClient extends AsyncTask<String, String, String> {
                     PrintWriter writer = new PrintWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
                     String userId = LoginActivity.userMap.get("user_id").toString();
-                    String nickName = LoginActivity.userMap.get("nick_name").toString();
-                    //이미지 경로가 null이라면
-                    String profile_image;
-                    if(LoginActivity.userMap.get("profile_image") == null){
-                        profile_image = null;
-                    }else{
-                        profile_image = LoginActivity.userMap.get("profile_image").toString();
-                    }
 
-                    String userAndRoomInfo = userId+";"+nickName+";"+roomNo+";"+profile_image;
+                    String userAndRoomInfo = userId+";"+roomNo;
 
                     writer.println(userAndRoomInfo);
                     writer.flush();
