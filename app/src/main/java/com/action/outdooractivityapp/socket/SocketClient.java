@@ -50,6 +50,9 @@ public class SocketClient extends AsyncTask<String, String, String> {
         super.onProgressUpdate();
         Log.d(TAG,"onProgressUpdate");
         RoomChatActivity.rvChatMessageAdapter.notifyDataSetChanged();
+
+        //스크롤 제일 아래로
+        RoomChatActivity.recyclerView_chat_message.scrollToPosition(RoomChatActivity.rvChatMessageAdapter.getItemCount()-1);
     }
 
     public void startClient() {

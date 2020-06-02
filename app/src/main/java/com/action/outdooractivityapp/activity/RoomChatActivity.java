@@ -37,7 +37,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
     public static List<Map> messageList = new ArrayList<Map>();
 
-    private RecyclerView recyclerView_chat_message;
+    public static RecyclerView recyclerView_chat_message;
     public static RVChatMessageAdapter rvChatMessageAdapter;
     private int roomNo = -1;
 
@@ -113,6 +113,9 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         /*리사이클러뷰에 adapter적용*/
         rvChatMessageAdapter = new RVChatMessageAdapter(this, messageList, R.layout.row_recyclerview_chat_message_receive, R.layout.row_recyclerview_chat_message_send);
         recyclerView_chat_message.setAdapter(rvChatMessageAdapter);
+
+        //스크롤 제일 아래로
+        recyclerView_chat_message.scrollToPosition(rvChatMessageAdapter.getItemCount()-1);
 
     }
 
