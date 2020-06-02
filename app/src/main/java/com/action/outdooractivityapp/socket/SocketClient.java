@@ -1,12 +1,8 @@
 package com.action.outdooractivityapp.socket;
 
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.action.outdooractivityapp.activity.LoginActivity;
 import com.action.outdooractivityapp.activity.RoomChatActivity;
@@ -80,7 +76,7 @@ public class SocketClient extends AsyncTask<String, String, String> {
 
                     writer.println(userAndRoomInfo);
                     writer.flush();
-                    //----------------------------------------------------
+                    //---------------------------------------------------------------------------
 
                     Log.d(TAG,"[서버와 연결 완료]");
                 } catch (IOException e) {
@@ -148,6 +144,7 @@ public class SocketClient extends AsyncTask<String, String, String> {
                     Log.d(TAG, itemMap.get("nickName").toString());
                     Log.d(TAG, itemMap.get("message").toString());
                     Log.d(TAG, itemMap.get("profileImage").toString());
+                    Log.d(TAG, itemMap.get("creationDate").toString());
                 }
                 //---------------------------------------------------------
 

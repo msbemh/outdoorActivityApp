@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
@@ -32,6 +33,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     private SocketClient socketClient;
     private ImageView image_back;
     private EditText editText_message;
+
 
     public static List<Map> messageList = new ArrayList<Map>();
 
@@ -56,6 +58,11 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
         createApplyRecyclerview();
 
+        //소켓 연결
+        socketClient = new SocketClient(roomNo);
+        socketClient.execute();
+//        socketClient.startClient();
+
     }
 
     @Override
@@ -63,10 +70,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         super.onResume();
         Log.d(TAG,"채팅방 onResume()");
 
-        //소켓 연결
-        socketClient = new SocketClient(roomNo);
-        socketClient.execute();
-//        socketClient.startClient();
+
     }
 
     void initializeView(){
@@ -120,13 +124,23 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d(TAG,"채팅방 onStop()");
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.d(TAG,"채팅방 onPause()");
+
+
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"채팅방 onStop()");
+        Log.d(TAG,"채팅방 onDestroy()");
         //소켓종료
         socketClient.stopClient();
         //AsyncTask종료
@@ -136,13 +150,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         }
         //메시지 리스트도 초기화
         messageList.clear();
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG,"채팅방 onDestroy()");
 
     }
 

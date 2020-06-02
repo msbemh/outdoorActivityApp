@@ -71,7 +71,7 @@ public class RVChatMessageAdapter extends RecyclerView.Adapter<RVChatMessageAdap
         //----------------------------------------------------
         holder.textView_nick_name.setText(items.get(position).get("nickName").toString());
         holder.textView_message.setText(items.get(position).get("message").toString());
-//        holder.textView_time.setText(items.get(position).get("writer").toString());
+        holder.textView_time.setText(items.get(position).get("creationDate").toString());
 
     }
 
