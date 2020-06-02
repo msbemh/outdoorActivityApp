@@ -13,8 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
@@ -113,7 +111,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         recyclerView_chat_message.setLayoutManager(layoutManagerRoom);
 
         /*리사이클러뷰에 adapter적용*/
-        rvChatMessageAdapter = new RVChatMessageAdapter(this, messageList, R.layout.row_recyclerview_chat_message);
+        rvChatMessageAdapter = new RVChatMessageAdapter(this, messageList, R.layout.row_recyclerview_chat_message_receive, R.layout.row_recyclerview_chat_message_send);
         recyclerView_chat_message.setAdapter(rvChatMessageAdapter);
 
     }

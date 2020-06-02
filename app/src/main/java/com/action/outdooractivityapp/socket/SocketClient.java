@@ -140,7 +140,7 @@ public class SocketClient extends AsyncTask<String, String, String> {
                 }
 
                 for(Map itemMap : resultList){
-                    Log.d(TAG, itemMap.get("userId").toString());
+                    Log.d(TAG, itemMap.get("writer").toString());
                     Log.d(TAG, itemMap.get("nickName").toString());
                     Log.d(TAG, itemMap.get("message").toString());
                     Log.d(TAG, itemMap.get("profileImage").toString());
@@ -151,7 +151,7 @@ public class SocketClient extends AsyncTask<String, String, String> {
 
                 //로컬 메시지 리스트에 메시지 입력
                 Map map = resultList.get(0);
-                RoomChatActivity.messageList.add(0, map);
+                RoomChatActivity.messageList.add(map);
 
                 //메시지에대한 RecyclerView UI 보여주기
                 publishProgress();
