@@ -14,10 +14,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
 import com.action.outdooractivityapp.socket.SocketClient;
+import com.action.outdooractivityapp.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,21 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         extras = getIntent().getExtras();
         roomNo = Integer.parseInt(extras.getString("room_no"));
         Log.d(TAG, "roomNo:"+roomNo);
+
+        //--------메시지 리스트 받아오기---------
+        String url = "https://wowoutdoor.tk/room/message_select_query.php";
+        String parameters = "roomNo="+roomNo;
+        String method = "GET";
+
+        //데이터 베이스에서 정보를 가져옴
+        messageList = Util.httpConn(url, parameters, method);
+        Log.d(TAG, "size:"+messageList.size());
+        for(Map itemMap : messageList){
+            Log.d(TAG, itemMap.get("messageNo").toString());
+        }
+
+        //-------------------------------------
+
 
         createApplyRecyclerview();
 

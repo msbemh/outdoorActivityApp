@@ -62,9 +62,9 @@ public class SocketClient extends AsyncTask<String, String, String> {
                     Log.d(TAG,"[서버에 연결 요청 중]");
                     //서버쪽 public IP
                     //아마존 EC2 Ip
-//                    socket.connect(new InetSocketAddress("13.125.70.176", 5001));
+                    socket.connect(new InetSocketAddress("13.125.70.176", 5001));
                     //집 private Ip
-                    socket.connect(new InetSocketAddress("192.168.219.187", 5001));
+//                    socket.connect(new InetSocketAddress("192.168.219.187", 5001));
 
                     //---- 이곳에 PrintWriter을 통해서 유저정보와 room정보를 서버에 보내주자 ------
                     OutputStream os = socket.getOutputStream();
