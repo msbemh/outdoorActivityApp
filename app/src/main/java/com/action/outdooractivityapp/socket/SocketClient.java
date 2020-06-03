@@ -6,18 +6,23 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
 
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.activity.LoginActivity;
 import com.action.outdooractivityapp.activity.RoomChatActivity;
+import com.action.outdooractivityapp.activity.TogetherActivity;
 import com.action.outdooractivityapp.service.SocketService;
+import com.action.outdooractivityapp.urlConnection.BringImageFile;
 import com.action.outdooractivityapp.util.Util;
 
 import org.json.JSONArray;
@@ -37,11 +42,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SocketClient extends AsyncTask<String, String, String> {
+public class SocketClient extends AsyncTask<String, Map, String> {
 
     private String TAG = "SocketClient";
     private SocketService socketService;
-    private final String NOTIFICATION_CHANNEL_ID = "channel_1";
+    private final String MESSAGES_CHANEL = "message_channel_1";
+    private final int NEW_MESSAGE_ID = 1;
+    private NotificationManager notificationManager;
     private int roomNo = -1;
 
     Socket socket;
@@ -61,7 +68,7 @@ public class SocketClient extends AsyncTask<String, String, String> {
 
     //메시지를 수신받을때 동작해서 UI변경
     @Override
-    protected void onProgressUpdate(String... strings) {
+    protected void onProgressUpdate(Map... map) {
         super.onProgressUpdate();
         Log.d(TAG,"onProgressUpdate");
 
@@ -72,7 +79,7 @@ public class SocketClient extends AsyncTask<String, String, String> {
         RoomChatActivity.recyclerView_chat_message.scrollToPosition(RoomChatActivity.rvChatMessageAdapter.getItemCount()-1);
 
         //알림 띄워주기
-        notificationGenerate();
+        notificationGenerate(map[0]);
     }
 
     public void startClient() {
@@ -177,7 +184,7 @@ public class SocketClient extends AsyncTask<String, String, String> {
                 RoomChatActivity.messageList.add(map);
 
                 //메시지에대한 RecyclerView UI 보여주기
-                publishProgress();
+                publishProgress(map);
             } catch (IOException e) {
                 Log.d(TAG,"서버와 통신 안됨");
                 stopClient();
@@ -217,47 +224,85 @@ public class SocketClient extends AsyncTask<String, String, String> {
     }
 
     //알림메시지 발생시키기
-    public void notificationGenerate() {
-        NotificationManager notificationManager = (NotificationManager)socketService.getSystemService(Context.NOTIFICATION_SERVICE);
+    public void notificationGenerate(Map map) {
+        //알림채널 만들기
+        createMessageNotificationChannel(socketService);
 
-        Intent notificationIntent = new Intent(socketService, RoomChatActivity.class);
-        notificationIntent.putExtra("room_no",roomNo+"");
-        Log.d(TAG,"[보내기전]roomNo:"+roomNo);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK) ;
-        PendingIntent pendingIntent = PendingIntent.getActivity(socketService, 0, notificationIntent,  PendingIntent.FLAG_UPDATE_CURRENT);
+        //-----------------Pending intent 만들기-----------------------------
+        Intent intent = new Intent(socketService, RoomChatActivity.class);
+        intent.putExtra("room_no",roomNo+"");
+        //pendingIntent에 백스택으로 있을 activity를 추가하가위해서 사용
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(socketService);
+        stackBuilder.addParentStack(RoomChatActivity.class);
+        stackBuilder.addNextIntent(intent);
 
+        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        //-----------------------------------------------------------------
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(socketService, NOTIFICATION_CHANNEL_ID)
-                .setLargeIcon(BitmapFactory.decodeResource(socketService.getResources(), R.drawable.ic_launcher_foreground)) //BitMap 이미지 요구
-                .setContentTitle("상태바 드래그시 보이는 타이틀")
-                .setContentText("상태바 드래그시 보이는 서브타이틀")
+        //------이미지 파일 서버에서 Bitmap으로 가져오기-------
+        Bitmap bitmap = null;
+        String profileImage = map.get("profileImage").toString();
+        //bitmap이 null일때
+        if(TextUtils.isEmpty(profileImage) || "null".equals(profileImage)){
+
+        //bitmap에 리소스가 존재할때
+        }else{
+            BringImageFile bringImageFile = new BringImageFile(map.get("profileImage").toString());
+            bringImageFile.start();
+
+            try{
+                bringImageFile.join();
+                //이미지 불러오기 완료되면 가져오기
+                bitmap = bringImageFile.getBitmap();
+            }
+            catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        //----------------------------------------------------
+
+        //build설정
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(socketService, MESSAGES_CHANEL)
+                //알림 작은 아이콘
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(map.get("nickName").toString())
+                .setContentText(map.get("message").toString())
                 // 더 많은 내용이라서 일부만 보여줘야 하는 경우 아래 주석을 제거하면 setContentText에 있는 문자열 대신 아래 문자열을 보여줌
                 //.setStyle(new NotificationCompat.BigTextStyle().bigText("더 많은 내용을 보여줘야 하는 경우..."))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent) // 사용자가 노티피케이션을 탭시 ResultActivity로 이동하도록 설정
                 .setAutoCancel(true);
-
-        //OREO API 26 이상에서는 채널 필요
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-            builder.setSmallIcon(R.drawable.ic_launcher_foreground); //mipmap 사용시 Oreo 이상에서 시스템 UI 에러남
-            CharSequence channelName  = "노티페케이션 채널";
-            String description = "오레오 이상을 위한 것임";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-
-            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName , importance);
-            channel.setDescription(description);
-
-            // 노티피케이션 채널을 시스템에 등록
-            notificationManager.createNotificationChannel(channel);
-
-        }else builder.setSmallIcon(R.mipmap.ic_launcher); // Oreo 이하에서 mipmap 사용하지 않으면 Couldn't create icon: StatusBarIcon 에러남
+        //BitMap 이미지 요구
+        if(bitmap != null){
+            builder.setLargeIcon(bitmap);
+        }else{
+            builder.setLargeIcon(BitmapFactory.decodeResource(socketService.getResources(), R.drawable.icon_profile_invert));
+        }
 
         //notification 생성
         Notification notification = builder.build();
         // 고유숫자로 노티피케이션 동작시킴
-        notificationManager.notify(1234, notification);
+        notificationManager.notify(roomNo, notification);
 
+    }
+
+    //알림채널 만들기
+    public void createMessageNotificationChannel(Context context){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //알림채널 이름
+            CharSequence channelName  = context.getString(R.string.messages_channel_name);
+            //알림채널 부가설명
+            String description = "오레오 이상의 버전에서 지원";
+            //알림채널 중요도
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+
+            NotificationChannel channel = new NotificationChannel(MESSAGES_CHANEL, channelName , importance);
+            channel.setDescription(description);
+
+            // 노티피케이션 채널을 시스템에 등록
+            notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
 

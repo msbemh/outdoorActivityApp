@@ -3,4 +3,5 @@
     <string name="input_id">아이디 입력</string>
     <string name="input_pw">패스워드 입력</string>
     <string name="input_re_pw">패스워드 재입력</string>
+    <string name="messages_channel_name">알림 채널</string>
 </resources>

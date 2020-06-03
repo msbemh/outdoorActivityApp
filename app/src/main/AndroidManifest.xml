@@ -20,13 +20,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <activity android:name=".activity.RoomChatActivity" />
+        <activity
+            android:name=".activity.RoomChatActivity"
+            android:parentActivityName=".activity.TogetherActivity"/>
         <activity android:name=".activity.RoomCreateActivity" />
         <activity android:name=".activity.MainActivity" />
         <activity android:name=".activity.SignUpActivity" />
         <activity android:name=".activity.MyPageActivity" />
         <activity android:name=".activity.ModifyProfileActivity" />
-        <activity android:name=".activity.TogetherActivity" />
+        <activity android:name=".activity.TogetherActivity"/>
 
         <service
             android:name=".service.SocketService"
