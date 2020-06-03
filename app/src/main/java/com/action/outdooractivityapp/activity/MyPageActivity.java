@@ -3,6 +3,7 @@ package com.action.outdooractivityapp.activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -65,7 +66,15 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                         public void onClick(DialogInterface dialog, int which) {
                             intent = new Intent(MyPageActivity.this,LoginActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //현재 TASK 비우기, 새로운 TASK만들기
+                            //local에서 유저 정보 삭제
                             LoginActivity.userMap.clear();
+
+                            //SharedPreferences에서도 유저 정보 삭제
+                            SharedPreferences pref = getSharedPreferences("myApp", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.remove("userList");
+                            editor.commit();
+
                             Log.d(TAG,"[로그아웃 확인]"+LoginActivity.userMap);
                             startActivity(intent);
                             finish();

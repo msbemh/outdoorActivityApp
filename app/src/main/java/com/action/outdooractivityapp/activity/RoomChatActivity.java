@@ -63,11 +63,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
         //데이터 베이스에서 정보를 가져옴
         messageList = Util.httpConn(url, parameters, method);
-        Log.d(TAG, "size:"+messageList.size());
-        for(Map itemMap : messageList){
-            Log.d(TAG, itemMap.get("messageNo").toString());
-        }
-
         //-------------------------------------
 
 

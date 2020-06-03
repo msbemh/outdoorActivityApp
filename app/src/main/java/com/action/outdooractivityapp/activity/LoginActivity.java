@@ -68,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         /*로그인 시도*/
         if(v.getId() == R.id.button_login){
             //로그인 성공
-            if(checkLogin()){
+            if(checkLogin(idEdit.getText().toString(), pwEdit.getText().toString())){
                 Toast.makeText(this,"로그인 성공",Toast.LENGTH_SHORT).show();
                 intent = new Intent(this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
@@ -105,10 +105,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     //로그인 체크
-    boolean checkLogin(){
-        String idString = idEdit.getText().toString();
-        String pwString = pwEdit.getText().toString();
-
+    boolean checkLogin(String idString, String pwString){
         //안드로이드 => http => 데이터베이스 에서 정보를 가져오기 위해서
         //url, paramters, method정보가 필요함.
         String url = "https://wowoutdoor.tk/user/user_login_check.php";
@@ -129,6 +126,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if(cnt>0){
             //로그인 성공
             userMap = resultList.get(0);
+            //SharedPreferences에 저장
+            Util.saveUser(this);
             return true;
         }else{
             //로그인 실패
@@ -141,15 +140,44 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onStart();
         Log.d(TAG,"로그인 onStart()");
 
-        //이미 로그인한 상태라면
+        //SharedPreferences에서 로그인 정보를 가져온다.
+        //[이유]한번 로그인하면, 로그아웃전까지 세션유지시키기 위해서.
+        Util.bringUser(this);
         Log.d(TAG,"userMap:"+userMap);
-        if(userMap.size() != 0){
-            intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            Toast.makeText(this,"이미 로그인한 상태입니다.",Toast.LENGTH_SHORT).show();
-            finish();
-        }
 
+        //다시 로그인 체크
+        if(userMap.size() > 0){
+            String userId = userMap.get("user_id").toString();
+            String userPassword = userMap.get("user_password").toString();
+            if(checkLogin(userId, userPassword)){
+                intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+
+                //------이미지 파일 서버에서 Bitmap으로 가져오기-------
+                BringImageFile bringImageFile = new BringImageFile(userMap.get("profile_image").toString());
+
+                bringImageFile.start();
+
+                try{
+                    bringImageFile.join();
+                    //이미지 불러오기 완료되면 가져오기
+                    Bitmap bitmap = bringImageFile.getBitmap();
+                    LoginActivity.profileImage = bitmap;
+                }
+                catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+                //----------------------------------------------------
+                Log.d(TAG,"[TEST]확인"+LoginActivity.userMap);
+                Toast.makeText(this,"이미 로그인한 상태입니다.",Toast.LENGTH_SHORT).show();
+                startActivity(intent);
+                finish();
+                //로그인 실패
+            }else{
+                pwEdit.setText("");
+                Toast.makeText(this,"로그아웃 됐습니다. 다시 로그인해주세요.",Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
