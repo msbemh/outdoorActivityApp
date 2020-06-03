@@ -46,7 +46,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     private int roomNo = -1;
 
     SocketService socketService; // 서비스 객체
-    boolean isService = false; // 서비스 중인 확인용
 
     //서비스와 연결되는 부분
     ServiceConnection serviceConnection = new ServiceConnection() {
@@ -54,7 +53,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             socketService = ((SocketService.MyBinder) service).getService();
-            isService = true;
         }
 
         // 서비스와 연결이 끊겼을 때 호출되는 메서드
@@ -62,7 +60,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         public void onServiceDisconnected(ComponentName name) {
             serviceConnection = null;
             socketService = null;
-            isService = false;
         }
     };
 
@@ -178,11 +175,11 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d(TAG,"채팅방 onStop()");
         Log.d(TAG,"채팅방 onDestroy()");
 
         //메시지 리스트도 초기화
-        messageList.clear();
+//        messageList.clear();
+        unbindService(serviceConnection);
 
     }
 
