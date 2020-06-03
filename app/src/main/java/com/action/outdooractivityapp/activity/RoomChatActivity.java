@@ -4,9 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +20,7 @@ import android.widget.ImageView;
 
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
+import com.action.outdooractivityapp.service.SocketService;
 import com.action.outdooractivityapp.socket.SocketClient;
 import com.action.outdooractivityapp.util.Util;
 
@@ -30,7 +35,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     private Bundle extras;
 
     private Button button_send;
-    private SocketClient socketClient;
     private ImageView image_back;
     private EditText editText_message;
 
@@ -40,6 +44,27 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     public static RecyclerView recyclerView_chat_message;
     public static RVChatMessageAdapter rvChatMessageAdapter;
     private int roomNo = -1;
+
+    SocketService socketService; // 서비스 객체
+    boolean isService = false; // 서비스 중인 확인용
+
+    //서비스와 연결되는 부분
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        // 서비스와 연결되었을 때 호출되는 메서드
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            socketService = ((SocketService.MyBinder) service).getService();
+            isService = true;
+        }
+
+        // 서비스와 연결이 끊겼을 때 호출되는 메서드
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceConnection = null;
+            socketService = null;
+            isService = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +93,13 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
         createApplyRecyclerview();
 
-        //소켓 연결
-        socketClient = new SocketClient(roomNo);
-        socketClient.execute();
-//        socketClient.startClient();
+        //서비스에서 소켓채팅 실행
+        Intent intent = new Intent(this, SocketService.class);
+        Log.d(TAG,"[서비스 실행전]roomNo:"+roomNo);
+        intent.putExtra("roomNo", roomNo);
+
+        //바인드 서비스 시작
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
     }
 
@@ -123,8 +151,8 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             //보낼 메시지가 존재한다면
             if(!TextUtils.isEmpty(sendMessage)){
                 //메시지 송신
-//                sendMessage = LoginActivity.userMap.get("user_id").toString()+"|"+room_no+"|"+sendMessage;
-                socketClient.send(sendMessage);
+//                socketClient.send(sendMessage);
+                socketService.send(sendMessage);
                 //메시지 초기화
                 editText_message.setText("");
             }
@@ -144,8 +172,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     protected void onPause() {
         super.onPause();
         Log.d(TAG,"채팅방 onPause()");
-
-
     }
 
 
@@ -154,13 +180,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         super.onDestroy();
         Log.d(TAG,"채팅방 onStop()");
         Log.d(TAG,"채팅방 onDestroy()");
-        //소켓종료
-        socketClient.stopClient();
-        //AsyncTask종료
-        if(socketClient.getStatus() == AsyncTask.Status.RUNNING){
-            Log.d(TAG,"AsyncTask강제종료");
-            socketClient.cancel(true);
-        }
+
         //메시지 리스트도 초기화
         messageList.clear();
 
