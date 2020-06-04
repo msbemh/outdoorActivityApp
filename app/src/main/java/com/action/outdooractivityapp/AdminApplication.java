@@ -6,6 +6,7 @@ import android.util.Log;
 public class AdminApplication extends Application {
 
     private final String TAG = "AdminApplication";
+    public static boolean isNotification = false;
 
     @Override
     public void onCreate() {

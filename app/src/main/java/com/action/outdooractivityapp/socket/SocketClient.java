@@ -17,6 +17,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.activity.LoginActivity;
 import com.action.outdooractivityapp.activity.RoomChatActivity;
@@ -78,8 +79,11 @@ public class SocketClient extends AsyncTask<String, Map, String> {
         //스크롤 제일 아래로
         RoomChatActivity.recyclerView_chat_message.scrollToPosition(RoomChatActivity.rvChatMessageAdapter.getItemCount()-1);
 
-        //알림 띄워주기
-        notificationGenerate(map[0]);
+        //해당 액티비티 밖에 있을때 notification을 수신할 수 있게한다
+        if(AdminApplication.isNotification){
+            notificationGenerate(map[0]);
+        }
+
     }
 
     public void startClient() {

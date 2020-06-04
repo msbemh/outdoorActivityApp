@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
 import com.action.outdooractivityapp.service.SocketService;
@@ -101,6 +102,15 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG,"채팅방 onStart()");
+        //onStart일때 알림메시지를 받을 수 없게 한다.
+        AdminApplication.isNotification = false;
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG,"채팅방 onResume()");
@@ -162,7 +172,9 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onStop() {
         super.onStop();
-
+        Log.d(TAG,"채팅방 onStop()");
+        //onStop일때 알림메시지를 받을 수 있게한다.
+        AdminApplication.isNotification = true;
     }
 
     @Override
