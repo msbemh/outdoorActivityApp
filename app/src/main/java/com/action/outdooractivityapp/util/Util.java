@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.action.outdooractivityapp.activity.LoginActivity;
 import com.action.outdooractivityapp.urlConnection.URLConnector;
@@ -240,6 +241,11 @@ public class Util {
             dateString = format.format(date);
         }
         return dateString;
+    }
+
+    //Toast 텍스트
+    public static void toastText(Context context, String text){
+        Toast.makeText(context.getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }
 
 }

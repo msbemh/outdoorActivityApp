@@ -8,7 +8,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -22,7 +21,6 @@ import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
 import com.action.outdooractivityapp.service.SocketService;
-import com.action.outdooractivityapp.socket.SocketClient;
 import com.action.outdooractivityapp.util.Util;
 
 import java.util.ArrayList;
