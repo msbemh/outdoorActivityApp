@@ -68,10 +68,12 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RVRoomAdapter.ViewHolder
                     builder.setTitle("비밀번호");
                     builder.setMessage("방의 비밀번호를 입력해주세요.");
                     // EditText 삽입하기
-                    final EditText editText = new EditText(context);
-                    editText.setHint("비밀번호 입력");
-                    editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                    builder.setView(editText);
+//                    final EditText editText = new EditText(context);
+//                    editText.setHint("비밀번호 입력");
+//                    editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+//                    editText.setId(0);
+//                    builder.setView(editText);
+                    builder.setView(R.layout.dialog_password_check);
                     builder.setCancelable(false);
                     builder.setPositiveButton("취소",null);
                     builder.setNegativeButton("확인", null);
@@ -82,7 +84,8 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RVRoomAdapter.ViewHolder
                         @Override
                         public void onClick(View v) {
                             // Text 값 받아서 로그 남기기
-                            String password = editText.getText().toString();
+                            EditText editText_password = dialog.findViewById(R.id.editText_password);
+                            String password = editText_password.getText().toString();
                             //-----------------http로 DB와 연동하여 해당방의 비밀번호가 맞는지 확인--------------------
                             String url = "https://wowoutdoor.tk/room/room_password_check.php";
                             String parameters = "password="+password+"&roomNo="+roomNo;
@@ -100,6 +103,7 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RVRoomAdapter.ViewHolder
                             int cnt = Integer.parseInt(resultList.get(0).get("cnt").toString());
 
                             if(cnt == 0){
+                                editText_password.setText("");
                                 Util.toastText(context,"패스워드가 틀립니다.");
                             }else if(cnt == 1){
                                 intent = new Intent(context, RoomChatActivity.class);
