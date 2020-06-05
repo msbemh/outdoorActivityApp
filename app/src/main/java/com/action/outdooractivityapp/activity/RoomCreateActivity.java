@@ -79,6 +79,14 @@ public class RoomCreateActivity extends AppCompatActivity implements View.OnClic
 
             if(result){
                 Toast.makeText(this,"방생성이 완료됐습니다.",Toast.LENGTH_SHORT).show();
+                intent = new Intent(this, TogetherActivity.class);
+                //점수를 전activity에 돌려주기
+                intent.putExtra("room_no", resultList.get(0).get("room_no").toString());
+                intent.putExtra("password", resultList.get(0).get("password").toString());
+                intent.putExtra("creation_date", resultList.get(0).get("creation_date").toString());
+                intent.putExtra("writer", resultList.get(0).get("writer").toString());
+                intent.putExtra("title", resultList.get(0).get("title").toString());
+                setResult(RESULT_OK, intent);
                 finish();
             }else{
                 Toast.makeText(this,"방생성에 실패했습니다.",Toast.LENGTH_SHORT).show();
