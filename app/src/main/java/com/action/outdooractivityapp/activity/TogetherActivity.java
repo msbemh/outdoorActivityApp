@@ -88,12 +88,20 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
         //방생성 결과
         if (requestCode == CREATE_ROOM_REQUEST_CODE && resultCode == RESULT_OK) {
             Map map = new HashMap();
-            map.put("room_no", Integer.parseInt(data.getStringExtra("room_no")));
+            int room_no = Integer.parseInt(data.getStringExtra("room_no"));
+            map.put("room_no", room_no);
             map.put("password",data.getStringExtra("password"));
             map.put("writer",data.getStringExtra("writer"));
             map.put("title",data.getStringExtra("title"));
             rvRoomAdapter.addItem(map);
             recyclerView_room.smoothScrollToPosition(0);
+
+            //방으로 이동
+            intent = new Intent(this, RoomChatActivity.class);
+            intent.putExtra("room_no", room_no+"");
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); //연속으로 2번 눌러도 activity가 2개 생성되지 않도록 하기위해서 사용.
+            startActivity(intent);
         }
     }
 
