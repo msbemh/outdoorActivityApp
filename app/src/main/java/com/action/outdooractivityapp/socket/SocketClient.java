@@ -309,5 +309,4 @@ public class SocketClient extends AsyncTask<String, Map, String> {
         }
     }
 
-
 }

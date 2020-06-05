@@ -77,24 +77,10 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         roomNo = Integer.parseInt(extras.getString("room_no"));
         Log.d(TAG, "roomNo:"+roomNo);
 
-        //--------방참가자 테이블에 insert시키기------
-        String url = "https://wowoutdoor.tk/room/room_people_insert_query.php";
-        String parameters = "room_no="+roomNo+"&user_id"+LoginActivity.userMap.get("user_id").toString();
-        String method = "POST";
-
-        //데이터 베이스에서 정보를 가져옴
-        List<Map> resultList = Util.httpConn(url, parameters, method);
-        if(resultList.size()>0){
-            if(Boolean.parseBoolean(resultList.get(0).get("result").toString())){
-                Log.d(TAG,"방참가자 테이블에 insert완료");
-            }
-        }
-        //-------------------------------------------
-
         //--------메시지 리스트 받아오기---------
-        url = "https://wowoutdoor.tk/room/message_select_query.php";
-        parameters = "roomNo="+roomNo;
-        method = "GET";
+        String url = "https://wowoutdoor.tk/room/message_select_query.php";
+        String parameters = "roomNo="+roomNo;
+        String method = "GET";
 
         //데이터 베이스에서 정보를 가져옴
         messageList = Util.httpConn(url, parameters, method);
@@ -204,20 +190,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         //메시지 리스트도 초기화
 //        messageList.clear();
         unbindService(serviceConnection);
-
-        //--------방참가자 테이블에 delete시키기------
-        String url = "https://wowoutdoor.tk/room/room_people_delete_query.php";
-        String parameters = "room_no="+roomNo+"&user_id"+LoginActivity.userMap.get("user_id").toString();
-        String method = "POST";
-
-        //데이터 베이스에서 정보를 가져옴
-        List<Map> resultList = Util.httpConn(url, parameters, method);
-        if(resultList.size()>0){
-            if(Boolean.parseBoolean(resultList.get(0).get("result").toString())){
-                Log.d(TAG,"방참가자 테이블에 delete완료");
-            }
-        }
-        //-------------------------------------------
 
     }
 
