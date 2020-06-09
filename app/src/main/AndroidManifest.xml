@@ -11,29 +11,36 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission  android:name = "android.permission.RECORD_AUDIO" />
+    <uses-permission  android:name = "android.permission.ACCESS_WIFI_STATE" />
+
     <application
-        android:name="AdminApplication"
+        android:name=".AdminApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-
+        <activity android:name=".activity.RoomMicrophoneActivity"></activity>
         <activity
             android:name=".activity.RoomChatActivity"
-            android:parentActivityName=".activity.TogetherActivity"/>
+            android:parentActivityName=".activity.TogetherActivity" />
         <activity android:name=".activity.RoomCreateActivity" />
         <activity android:name=".activity.MainActivity" />
         <activity android:name=".activity.SignUpActivity" />
         <activity android:name=".activity.MyPageActivity" />
         <activity android:name=".activity.ModifyProfileActivity" />
-        <activity android:name=".activity.TogetherActivity"/>
+        <activity android:name=".activity.TogetherActivity" />
+
+        <activity android:name=".MainActivity2" />
+        <activity android:name=".MakeCallActivity" />
+        <activity android:name=".ReceiveCallActivity" />
 
         <service
             android:name=".service.SocketService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -51,6 +58,7 @@
         <activity android:name=".activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

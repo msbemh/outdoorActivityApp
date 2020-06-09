@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.action.outdooractivityapp.AdminApplication;
+import com.action.outdooractivityapp.MainActivity2;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
 import com.action.outdooractivityapp.service.SocketService;
@@ -36,7 +37,9 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     private Button button_send;
     private ImageView image_back;
     private EditText editText_message;
-
+    private ImageView image_chat;
+    private ImageView image_map;
+    private ImageView image_microphone;
 
     public static List<Map> messageList = new ArrayList<Map>();
 
@@ -120,11 +123,17 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         button_send = findViewById(R.id.button_send);
         image_back = findViewById(R.id.image_back);
         editText_message = findViewById(R.id.editText_message);
+        image_chat = findViewById(R.id.image_chat);
+        image_map = findViewById(R.id.image_map);
+        image_microphone = findViewById(R.id.image_microphone);
     }
 
     void registerListener(){
         button_send.setOnClickListener(this);
         image_back.setOnClickListener(this);
+        image_chat.setOnClickListener(this);
+        image_map.setOnClickListener(this);
+        image_microphone.setOnClickListener(this);
     }
 
     void createApplyRecyclerview(){
@@ -164,6 +173,11 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         //뒤로가기 클릭
         }else if(v.getId() == R.id.image_back){
             finish();
+        //마이크 클릭
+        }else if(v.getId() == R.id.image_microphone){
+            intent = new Intent(this, MainActivity2.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+            startActivity(intent);
         }
     }
 

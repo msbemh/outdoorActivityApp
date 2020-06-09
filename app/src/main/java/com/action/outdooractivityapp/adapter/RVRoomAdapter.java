@@ -77,7 +77,9 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             Log.d(TAG,"View Room 바인딩!");
             ViewHolderRoom holderRoom = (ViewHolderRoom) holder;
             holderRoom.text_room_no.setText(items.get(position).get("room_no").toString());
-            holderRoom.text_user_num.setText(items.get(position).get("cnt").toString());
+            if(items.get(position).get("cnt") != null){
+                holderRoom.text_user_num.setText(items.get(position).get("cnt").toString());
+            }
             holderRoom.text_writer.setText(items.get(position).get("writer").toString());
             holderRoom.text_title.setText(items.get(position).get("title").toString());
 
