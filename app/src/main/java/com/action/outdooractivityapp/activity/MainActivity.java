@@ -4,12 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.service.ForcedTerminationService;
+import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
@@ -29,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
         registerListener();
 
         Log.d(TAG,LoginActivity.userMap.toString());
+
+        //앱 강제 종료시켰을때 Destroy 동작 시키기 위해서 추가
+//        startService(new Intent(MainActivity.this, ForcedTerminationService.class));
 
     }
 
@@ -74,6 +80,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG,"메인 onResume()");
         /*하단 네비게이션 checked표시*/
         navView.getMenu().getItem(0).setChecked(true);
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"메인 onDestroy()");
+        Util.toastText(this, "메인 onDestroy()");
     }
 }

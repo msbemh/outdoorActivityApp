@@ -1,7 +1,11 @@
 package com.action.outdooractivityapp;
 
 import android.app.Application;
+import android.content.Intent;
 import android.util.Log;
+
+import com.action.outdooractivityapp.activity.MainActivity;
+import com.action.outdooractivityapp.service.ForcedTerminationService;
 
 public class AdminApplication extends Application {
 

@@ -175,8 +175,10 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             finish();
         //마이크 클릭
         }else if(v.getId() == R.id.image_microphone){
-            intent = new Intent(this, MainActivity2.class);
+//            intent = new Intent(this, MainActivity2.class);
+            intent = new Intent(this, RoomMicrophoneActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+            intent.putExtra("room_no", roomNo);
             startActivity(intent);
         }
     }

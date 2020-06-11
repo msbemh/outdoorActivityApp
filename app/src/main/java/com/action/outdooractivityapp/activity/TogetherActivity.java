@@ -286,4 +286,11 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
 
         loadMoreItem();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"함께하기 onDestroy()");
+        Util.toastText(this, "함께하기 onDestroy()");
+    }
 }

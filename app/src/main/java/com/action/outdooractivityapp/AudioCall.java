@@ -162,16 +162,20 @@ public class AudioCall {
                         //소켓 끊기
                         socket.disconnect();
                         socket.close();
-                        //트랙 끊고 비우기
+
                         track.stop();
                         track.flush();
                         track.release();
                         speakers = false;
                         return;
-                    }catch(SocketException e) {
+                    }
+                    catch(SocketException e) {
+
                         Log.e(LOG_TAG, "SocketException: " + e.toString());
                         speakers = false;
-                    }catch(IOException e) {
+                    }
+                    catch(IOException e) {
+
                         Log.e(LOG_TAG, "IOException: " + e.toString());
                         speakers = false;
                     }
