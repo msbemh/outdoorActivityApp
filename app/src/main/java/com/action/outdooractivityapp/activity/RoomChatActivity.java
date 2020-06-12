@@ -21,6 +21,7 @@ import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.MainActivity2;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
+import com.action.outdooractivityapp.service.RadioCommunicationService;
 import com.action.outdooractivityapp.service.SocketService;
 import com.action.outdooractivityapp.util.Util;
 
@@ -47,10 +48,11 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     public static RVChatMessageAdapter rvChatMessageAdapter;
     private int roomNo = -1;
 
-    SocketService socketService; // 서비스 객체
+    SocketService socketService; // 채팅 서비스 객체
+    RadioCommunicationService radioCommunicationService; // 무전기 서비스 객체
 
-    //서비스와 연결되는 부분
-    ServiceConnection serviceConnection = new ServiceConnection() {
+    //채팅 서비스와 연결되는 부분
+    ServiceConnection chatServiceConnection = new ServiceConnection() {
         // 서비스와 연결되었을 때 호출되는 메서드
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -60,7 +62,23 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         // 서비스와 연결이 끊겼을 때 호출되는 메서드
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            serviceConnection = null;
+            chatServiceConnection = null;
+            socketService = null;
+        }
+    };
+
+    //무전기 서비스와 연결되는 부분
+    ServiceConnection radioServiceConnection = new ServiceConnection() {
+        // 서비스와 연결되었을 때 호출되는 메서드
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            socketService = ((SocketService.MyBinder) service).getService();
+        }
+
+        // 서비스와 연결이 끊겼을 때 호출되는 메서드
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            radioServiceConnection = null;
             socketService = null;
         }
     };
@@ -98,7 +116,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         intent.putExtra("roomNo", roomNo);
 
         //바인드 서비스 시작
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        bindService(intent, chatServiceConnection, Context.BIND_AUTO_CREATE);
 
     }
 
@@ -205,7 +223,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
         //메시지 리스트도 초기화
 //        messageList.clear();
-        unbindService(serviceConnection);
+        unbindService(chatServiceConnection);
 
     }
 

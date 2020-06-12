@@ -43,6 +43,11 @@
             android:exported="true" />
 
         <service
+            android:name=".service.RadioCommunicationService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
             android:name=".service.ForcedTerminationService"
             android:stopWithTask="false" />
 
