@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.action.outdooractivityapp.R;
@@ -28,7 +29,7 @@ public class RoomMicrophoneTestActivity extends AppCompatActivity implements Vie
     private Intent intent;
     private Bundle extras;
     private int roomNo = -1;
-    private Button button_push_to_talk;
+    private ImageView image_push_to_talk;
     private Button button_push_to_talk_pause;
 
     private String message;
@@ -78,19 +79,19 @@ public class RoomMicrophoneTestActivity extends AppCompatActivity implements Vie
     }
 
     void initializeView(){
-        button_push_to_talk = findViewById(R.id.button_push_to_talk);
+        image_push_to_talk = findViewById(R.id.image_push_to_talk);
         button_push_to_talk_pause = findViewById(R.id.button_push_to_talk_pause);
     }
 
     void registerListener(){
-        button_push_to_talk.setOnClickListener(this);
+        image_push_to_talk.setOnClickListener(this);
         button_push_to_talk_pause.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         //통신 클릭
-        if(v.getId() == R.id.button_push_to_talk) {
+        if(v.getId() == R.id.image_push_to_talk) {
             Log.d(TAG, "통신 클릭");
             //마이크 녹음 시작
             startMic();

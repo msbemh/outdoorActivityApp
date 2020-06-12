@@ -1,5 +1,6 @@
 package com.action.outdooractivityapp.socket;
 
+import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -8,6 +9,7 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.activity.LoginActivity;
 import com.action.outdooractivityapp.service.RadioCommunicationService;
 
@@ -19,16 +21,19 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Map;
 
-public class SocketUDPClient extends AsyncTask<String, Map, String> {
+public class SocketUDPClient extends AsyncTask<String, String, String> {
 
     private String TAG = "SocketUDPClient";
     private int roomNo = -1;
     private RadioCommunicationService radioCommunicationService;
 
     private String message;
+    private final int BUF_SIZE = 1024;
 
     //유저관리 서버 Port
     private static int SERVER_USER_PORT = 50000;
+    //마이크 접속 관리 서버 Port
+    private static int AUDIO_MANAGE_PORT = 50001;
 
     private DatagramSocket userSocket;
     private int communicationPort = -1;
@@ -65,9 +70,10 @@ public class SocketUDPClient extends AsyncTask<String, Map, String> {
 
     //메시지를 수신받을때 동작해서 UI변경
     @Override
-    protected void onProgressUpdate(Map... map) {
+    protected void onProgressUpdate(String... strings) {
         super.onProgressUpdate();
-        Log.d(TAG,"onProgressUpdate");
+        Log.d(TAG,"onProgressUpdate동작!!");
+
 
     }
 
@@ -116,6 +122,29 @@ public class SocketUDPClient extends AsyncTask<String, Map, String> {
                 @Override
                 public void run() {
                     try {
+                        //마이크 동작해도 될지 서버에 요청후 응답받기
+//                        String message = LoginActivity.userMap.get("user_id")+";"+roomNo;
+//                        byte[] data = message.getBytes();
+//                        InetAddress address = InetAddress.getByName(serverIP);
+//                        DatagramSocket audioManageSocket = new DatagramSocket();
+//                        DatagramPacket packet = new DatagramPacket(data, data.length, address, AUDIO_MANAGE_PORT);
+//                        audioManageSocket.send(packet);
+//
+//                        audioManageSocket.receive(packet);
+//                        String result = new String(packet.getData(), 0, packet.getLength(),"UTF-8");
+//                        //소켓 끊기
+//                        audioManageSocket.disconnect();
+//                        audioManageSocket.close();
+//                        //마이크 동작이 불가하면 아랫부분 실행하지 않기
+//                        if(!"success".equals(result)){
+//                            mic = false;
+//                            return;
+//                        }
+                        Intent intent = new Intent(AdminApplication.AUDIO_COMMUNICATION_CHANGED);
+                        intent.putExtra("result","success");
+                        radioCommunicationService.sendBroadcast(intent);
+                        publishProgress();
+
                         //오디오 Record 생성
                         AudioRecord audioRecorder = new AudioRecord (MediaRecorder.AudioSource.VOICE_COMMUNICATION, SAMPLE_RATE,
                                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT,
@@ -130,9 +159,14 @@ public class SocketUDPClient extends AsyncTask<String, Map, String> {
                         audioRecorder.startRecording();
                         //녹음 반복
                         while(mic) {
+                            //녹음 중단
+                            if(communicationPort == -1){
+                                break;
+                            }
                             //녹음 데이터 읽기
                             audioRecorder.read(buf, 0, AUDIO_BUF_SIZE);
                             //녹음 데이터 서버로 전송
+                            Log.d(TAG, "communicationPort: " + communicationPort);
                             DatagramPacket packet = new DatagramPacket(buf, buf.length, address, communicationPort);
                             socket.send(packet);
 

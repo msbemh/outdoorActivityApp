@@ -11,6 +11,7 @@ public class AdminApplication extends Application {
 
     private final String TAG = "AdminApplication";
     public static boolean isNotification = false;
+    public final static String AUDIO_COMMUNICATION_CHANGED = "AUDIO_COMMUNICATION_CHANGED";
 
     @Override
     public void onCreate() {
