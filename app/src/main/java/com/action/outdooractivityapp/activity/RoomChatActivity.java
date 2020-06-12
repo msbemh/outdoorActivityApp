@@ -18,7 +18,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.action.outdooractivityapp.AdminApplication;
-import com.action.outdooractivityapp.MainActivity2;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVChatMessageAdapter;
 import com.action.outdooractivityapp.service.RadioCommunicationService;
@@ -72,14 +71,14 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         // 서비스와 연결되었을 때 호출되는 메서드
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            socketService = ((SocketService.MyBinder) service).getService();
+            radioCommunicationService = ((RadioCommunicationService.MyBinder) service).getService();
         }
 
         // 서비스와 연결이 끊겼을 때 호출되는 메서드
         @Override
         public void onServiceDisconnected(ComponentName name) {
             radioServiceConnection = null;
-            socketService = null;
+            radioCommunicationService = null;
         }
     };
 
@@ -110,13 +109,18 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
         createApplyRecyclerview();
 
-        //서비스에서 소켓채팅 실행
+        //채팅 바인드 서비스 시작
         Intent intent = new Intent(this, SocketService.class);
-        Log.d(TAG,"[서비스 실행전]roomNo:"+roomNo);
+        Log.d(TAG,"[채팅 서비스 실행전]roomNo:"+roomNo);
         intent.putExtra("roomNo", roomNo);
-
-        //바인드 서비스 시작
         bindService(intent, chatServiceConnection, Context.BIND_AUTO_CREATE);
+
+
+        //무전기 바인드 서비스 시작
+        intent = new Intent(this, RadioCommunicationService.class);
+        Log.d(TAG,"[무전기 서비스 실행전]roomNo:"+roomNo);
+        intent.putExtra("roomNo", roomNo);
+        bindService(intent, radioServiceConnection, Context.BIND_AUTO_CREATE);
 
     }
 
@@ -223,7 +227,10 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
         //메시지 리스트도 초기화
 //        messageList.clear();
+        //채팅 서비스 unbind시키기
         unbindService(chatServiceConnection);
+        //무전기 서비스 unbind시키기
+        unbindService(radioServiceConnection);
 
     }
 

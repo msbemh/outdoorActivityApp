@@ -1,15 +1,19 @@
-package com.action.outdooractivityapp.socket;
+package com.action.outdooractivityapp.activity;
 
+import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
-import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
-import com.action.outdooractivityapp.activity.LoginActivity;
-import com.action.outdooractivityapp.service.RadioCommunicationService;
+import androidx.appcompat.app.AppCompatActivity;
+import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.util.Util;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -17,13 +21,15 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Map;
 
-public class SocketUDPClient extends AsyncTask<String, Map, String> {
+public class RoomMicrophoneTestActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private String TAG = "SocketUDPClient";
+    private static final String TAG = "RoomMicrophoneActivity";
+    private Intent intent;
+    private Bundle extras;
     private int roomNo = -1;
-    private RadioCommunicationService radioCommunicationService;
+    private Button button_push_to_talk;
+    private Button button_push_to_talk_pause;
 
     private String message;
 
@@ -49,26 +55,99 @@ public class SocketUDPClient extends AsyncTask<String, Map, String> {
     //아마존
     private String serverIP = "13.125.70.176";
 
-
-    public SocketUDPClient(RadioCommunicationService radioCommunicationService, int roomNo){
-        this.radioCommunicationService = radioCommunicationService;
-        this.roomNo = roomNo;
-    }
-
     @Override
-    protected String doInBackground(String... strings) {
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_room_microphone);
+
+        initializeView();
+
+        registerListener();
+
+        //방번호 받기
+        /*data 받아오기*/
+        extras = getIntent().getExtras();
+        roomNo = extras.getInt("room_no",-1);
+        Log.d(TAG, "roomNo:"+roomNo);
+
+
         //서버에 나에 대한 정보 등록하기
-        message = "ADD:"+ LoginActivity.userMap.get("user_id")+";"+LoginActivity.userMap.get("nick_name")+";"+roomNo;
+        message = "ADD:"+LoginActivity.userMap.get("user_id")+";"+LoginActivity.userMap.get("nick_name")+";"+roomNo;
         userManage(message, SERVER_USER_PORT);
-        return null;
+
     }
 
-    //메시지를 수신받을때 동작해서 UI변경
-    @Override
-    protected void onProgressUpdate(Map... map) {
-        super.onProgressUpdate();
-        Log.d(TAG,"onProgressUpdate");
+    void initializeView(){
+        button_push_to_talk = findViewById(R.id.button_push_to_talk);
+        button_push_to_talk_pause = findViewById(R.id.button_push_to_talk_pause);
+    }
 
+    void registerListener(){
+        button_push_to_talk.setOnClickListener(this);
+        button_push_to_talk_pause.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        //통신 클릭
+        if(v.getId() == R.id.button_push_to_talk) {
+            Log.d(TAG, "통신 클릭");
+            //마이크 녹음 시작
+            startMic();
+            //통신 중단 클릭
+        }else if(v.getId() == R.id.button_push_to_talk_pause){
+            muteMic();
+//            muteSpeakers();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //서버에 나에 대한 정보 끊기
+        Thread endThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    message = "END:"+LoginActivity.userMap.get("user_id")+";"+LoginActivity.userMap.get("nick_name")+";"+roomNo;
+                    //UDP 통신 설정
+                    InetAddress address = InetAddress.getByName(serverIP);
+                    byte[] data = message.getBytes();
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, SERVER_USER_PORT);
+
+                    //서버로 송신
+                    userSocket.send(packet);
+                    userManage(message, SERVER_USER_PORT);
+
+                    //유저관리 소켓 닫기
+                    userSocket.disconnect();
+                    userSocket.close();
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                    //유저관리 소켓 닫기
+                    userSocket.disconnect();
+                    userSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //유저관리 소켓 닫기
+                    userSocket.disconnect();
+                    userSocket.close();
+                }
+            }
+        });
+        endThread.start();
+
+        //마이크, 시피커 중단시키기
+        muteMic();
+        muteSpeakers();
+
+        Log.d(TAG,"무전기 onDestroy()");
+        Util.toastText(this, "무전기 onDestroy()");
     }
 
     //유저 서버에 등록
@@ -240,44 +319,5 @@ public class SocketUDPClient extends AsyncTask<String, Map, String> {
         speakers = false;
     }
 
-    //서버에 연결 끊는다고 알리기
-    public void sendCommunicationEnd(){
-        //서버에 나에 대한 정보 끊기
-        Thread endThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    message = "END:"+LoginActivity.userMap.get("user_id")+";"+LoginActivity.userMap.get("nick_name")+";"+roomNo;
-                    //UDP 통신 설정
-                    InetAddress address = InetAddress.getByName(serverIP);
-                    byte[] data = message.getBytes();
-                    DatagramPacket packet = new DatagramPacket(data, data.length, address, SERVER_USER_PORT);
-
-                    //서버로 송신
-                    userSocket.send(packet);
-                    userManage(message, SERVER_USER_PORT);
-
-                    //유저관리 소켓 닫기
-                    userSocket.disconnect();
-                    userSocket.close();
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                    //유저관리 소켓 닫기
-                    userSocket.disconnect();
-                    userSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    //유저관리 소켓 닫기
-                    userSocket.disconnect();
-                    userSocket.close();
-                }
-            }
-        });
-        endThread.start();
-
-        //마이크, 시피커 중단시키기
-        muteMic();
-        muteSpeakers();
-    }
 
 }
