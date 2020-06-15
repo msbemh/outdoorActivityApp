@@ -61,4 +61,12 @@ public class RadioCommunicationService extends Service {
     public void muteMic(){
         socketUDPClient.muteMic();
     }
+
+    public void micCheckAndGo(){
+        socketUDPClient.micCheckAndGo();
+    }
+
+    public void micEndCheck(){
+        socketUDPClient.micEndCheck();
+    }
 }

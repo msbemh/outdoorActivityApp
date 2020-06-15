@@ -1,11 +1,13 @@
 package com.action.outdooractivityapp.activity;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -20,6 +22,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
@@ -40,6 +44,7 @@ public class RoomMicrophoneActivity extends AppCompatActivity implements View.On
     private Bundle extras;
     private int roomNo = -1;
     private ImageView image_push_to_talk;
+    private final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
 //    private Button button_push_to_talk_pause;
 
     RadioCommunicationService radioCommunicationService; // 무전기 서비스 객체
@@ -60,13 +65,32 @@ public class RoomMicrophoneActivity extends AppCompatActivity implements View.On
         }
     };
 
-    //서비스에서
+    //서비스의 브로드캐스트 수신받는곳
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG,"무전기 브로드캐스트 리시버 동작");
-            String result = intent.getStringExtra("result");
-            Log.d(TAG,"result:"+result);
+        Log.d(TAG,"무전기 브로드캐스트 리시버 동작");
+        String result = intent.getStringExtra("result");
+        Log.d(TAG,"result:"+result);
+            //마이크 동작 가능
+            if("connectSuccess".equals(result)){
+                image_push_to_talk.setImageResource(R.drawable.radio_communication_send_image);
+                AdminApplication.isAvailableMicrophone = true;
+            //마이크 동작 불가처리
+            }else if("connectFail".equals(result)){
+                image_push_to_talk.setImageResource(R.drawable.radio_communication_receive_image);
+                AdminApplication.isAvailableMicrophone = false;
+            //해제완료(마이크 동작 가능)
+            } else if("endSuccess".equals(result)){
+                image_push_to_talk.setImageResource(R.drawable.radio_communication_image);
+                radioCommunicationService.muteMic();
+                AdminApplication.isAvailableMicrophone = true;
+            //해제실패(마이크 동작 불가처리)
+            } else if("endFail".equals(result)){
+                image_push_to_talk.setImageResource(R.drawable.radio_communication_waiting_image);
+                radioCommunicationService.muteMic();
+                AdminApplication.isAvailableMicrophone = false;
+            }
 
         }
     };
@@ -95,7 +119,29 @@ public class RoomMicrophoneActivity extends AppCompatActivity implements View.On
         intent.putExtra("roomNo", roomNo);
         bindService(intent, radioServiceConnection, Context.BIND_AUTO_CREATE);
 
+        //오디오 권한 요구하기
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+        }
+    }
 
+    //권한 설정 결과
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                //마이크 사용 허가했을 때
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                //마이크 사용 허가 안했을 때
+                } else {
+                    Log.d("TAG", "permission denied by user");
+                    Util.toastText(this,"마이크 권한을 허용해야합니다.");
+                    finish();
+                }
+                return;
+            }
+        }
     }
 
     void initializeView(){
@@ -138,13 +184,19 @@ public class RoomMicrophoneActivity extends AppCompatActivity implements View.On
             if(MotionEvent.ACTION_DOWN == event.getAction()) {
                 Log.d(TAG, "녹음중...");
                 //마이크 녹음 시작
-                image_push_to_talk.setImageResource(R.drawable.radio_communication_waiting_image);
-                radioCommunicationService.startMic();
+                if(AdminApplication.isAvailableMicrophone){
+                    image_push_to_talk.setImageResource(R.drawable.radio_communication_waiting_image);
+                    radioCommunicationService.micCheckAndGo();
+                }
+
+//                radioCommunicationService.startMic();
             }else if(MotionEvent.ACTION_UP == event.getAction()) {
                 Log.d(TAG, "녹음 종료");
                 //마이크 녹음 끝내기
-                image_push_to_talk.setImageResource(R.drawable.radio_communication_image);
-                radioCommunicationService.muteMic();
+//                radioCommunicationService.muteMic();
+                if(AdminApplication.isAvailableMicrophone) {
+                    radioCommunicationService.micEndCheck();
+                }
             }
             return true;
         }

@@ -33,10 +33,6 @@
         <activity android:name=".activity.ModifyProfileActivity" />
         <activity android:name=".activity.TogetherActivity" />
 
-        <activity android:name=".MainActivity2" />
-        <activity android:name=".MakeCallActivity" />
-        <activity android:name=".ReceiveCallActivity" />
-
         <service
             android:name=".service.SocketService"
             android:enabled="true"

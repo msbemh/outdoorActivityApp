@@ -14,6 +14,7 @@ import com.action.outdooractivityapp.activity.LoginActivity;
 import com.action.outdooractivityapp.service.RadioCommunicationService;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -32,16 +33,21 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
 
     //유저관리 서버 Port
     private static int SERVER_USER_PORT = 50000;
+    //마이크 접속 서버 Port
+    private static int AUDIO_MANAGE_ACCEPT_PORT = 50001;
     //마이크 접속 관리 서버 Port
-    private static int AUDIO_MANAGE_PORT = 50001;
+    private static int AUDIO_MANAGE_PORT = 50002;
 
-    private DatagramSocket userSocket;
+    private DatagramSocket userSocket = null;
     private int communicationPort = -1;
+    private DatagramSocket micManageAcceptSocket = null;
 
     //마이크 on/off
     private boolean mic = false;
     //스피커 on/off
     private boolean speakers = false;
+    //마이크 사용 여부 on/off
+    private boolean micAvailable = false;
 
     //마이크 관련 변수
     private static final int SAMPLE_RATE = 8000; // Hertz
@@ -101,6 +107,16 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
 
                     //스피커 동작시키기
                     startSpeakers();
+
+                    //client생성 완료 체크
+                    Log.d(TAG,"client생성 완료 체크 얻어오는중...");
+                    userSocket.receive(packet);
+                    String clientCreateCheck = new String(packet.getData(), 0, packet.getLength(),"UTF-8");
+                    Log.d(TAG,"clientCreateCheck : "+clientCreateCheck);
+
+                    //마이크 관리 접속 시키기
+                    micManageAccept();
+
                 }catch(UnknownHostException e) {
                     Log.e(TAG, "Failure. UnknownHostException in sendMessage: " + serverIP);
                 }catch(SocketException e) {
@@ -122,29 +138,6 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
                 @Override
                 public void run() {
                     try {
-                        //마이크 동작해도 될지 서버에 요청후 응답받기
-//                        String message = LoginActivity.userMap.get("user_id")+";"+roomNo;
-//                        byte[] data = message.getBytes();
-//                        InetAddress address = InetAddress.getByName(serverIP);
-//                        DatagramSocket audioManageSocket = new DatagramSocket();
-//                        DatagramPacket packet = new DatagramPacket(data, data.length, address, AUDIO_MANAGE_PORT);
-//                        audioManageSocket.send(packet);
-//
-//                        audioManageSocket.receive(packet);
-//                        String result = new String(packet.getData(), 0, packet.getLength(),"UTF-8");
-//                        //소켓 끊기
-//                        audioManageSocket.disconnect();
-//                        audioManageSocket.close();
-//                        //마이크 동작이 불가하면 아랫부분 실행하지 않기
-//                        if(!"success".equals(result)){
-//                            mic = false;
-//                            return;
-//                        }
-                        Intent intent = new Intent(AdminApplication.AUDIO_COMMUNICATION_CHANGED);
-                        intent.putExtra("result","success");
-                        radioCommunicationService.sendBroadcast(intent);
-                        publishProgress();
-
                         //오디오 Record 생성
                         AudioRecord audioRecorder = new AudioRecord (MediaRecorder.AudioSource.VOICE_COMMUNICATION, SAMPLE_RATE,
                                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT,
@@ -152,7 +145,7 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
 
                         //오디오 UDP 통신 설정
                         byte[] buf = new byte[AUDIO_BUF_SIZE];
-                        InetAddress address = InetAddress.getByName(serverIP);
+                        InetAddress  address = InetAddress.getByName(serverIP);
                         DatagramSocket socket = new DatagramSocket();
 
                         //녹음 시작
@@ -274,6 +267,10 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
         speakers = false;
     }
 
+    public void muteMicAvailable(){
+        micAvailable = false;
+    }
+
     //서버에 연결 끊는다고 알리기
     public void sendCommunicationEnd(){
         //서버에 나에 대한 정보 끊기
@@ -294,24 +291,213 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
                     //유저관리 소켓 닫기
                     userSocket.disconnect();
                     userSocket.close();
+                    //마이크관리 접속 소켓 닫기
+                    micManageAcceptSocket.disconnect();
+                    micManageAcceptSocket.close();
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                     //유저관리 소켓 닫기
                     userSocket.disconnect();
                     userSocket.close();
+                    //마이크관리 접속 소켓 닫기
+                    micManageAcceptSocket.disconnect();
+                    micManageAcceptSocket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                     //유저관리 소켓 닫기
                     userSocket.disconnect();
                     userSocket.close();
+                    //마이크관리 접속 소켓 닫기
+                    micManageAcceptSocket.disconnect();
+                    micManageAcceptSocket.close();
                 }
             }
         });
         endThread.start();
 
-        //마이크, 시피커 중단시키기
+        //마이크, 스피커, 마이크 이용가능여부 중단시키기
         muteMic();
         muteSpeakers();
+        muteMicAvailable();
     }
+
+    //마이크 사용 관리 접속 & 마이크 이용가능 여부 데이터받기
+    void micManageAccept(){
+        micAvailable = true;
+        Thread micManageAcceptThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //마이크 사용 관리 접속 시키기
+                    String message = LoginActivity.userMap.get("user_id")+";"+roomNo;
+                    byte[] data = message.getBytes();
+                    InetAddress address = InetAddress.getByName(serverIP);
+                    micManageAcceptSocket = new DatagramSocket();
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, AUDIO_MANAGE_ACCEPT_PORT);
+                    micManageAcceptSocket.send(packet);
+
+                    //마이크 이용가능 여부 데이터 받기
+                    while(micAvailable){
+                        //이용 가능여부 결과 받기
+                        Log.d(TAG,"이용 가능 여부 받는중...");
+                        byte[] buffer = new byte[BUF_SIZE];
+                        DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length, address, AUDIO_MANAGE_ACCEPT_PORT);
+                        micManageAcceptSocket.receive(receivePacket);
+                        String result = new String(receivePacket.getData(), 0, receivePacket.getLength(),"UTF-8");
+                        Log.d(TAG,"result:"+result);
+
+                        //마이크 동작 가능
+                        if("connectSuccess".equals(result)){
+                            //무전기 통신 버튼 UI변경을 위해서 브로드캐스트 송신
+                            Intent intent = new Intent(AdminApplication.AUDIO_COMMUNICATION_CHANGED);
+                            intent.putExtra("result","connectSuccess");
+                            radioCommunicationService.sendBroadcast(intent);
+                            Log.d(TAG,"connectSuccess");
+                            //마이크 시작
+                            startMic();
+                        //마이크 동작 불가처리
+                        }else if("connectFail".equals(result)){
+                            //무전기 통신 버튼 UI변경을 위해서 브로드캐스트 송신
+                            Intent intent = new Intent(AdminApplication.AUDIO_COMMUNICATION_CHANGED);
+                            intent.putExtra("result","connectFail");
+                            Log.d(TAG,"connectFail");
+                            radioCommunicationService.sendBroadcast(intent);
+                        //해제완료(마이크 동작 가능)
+                        } else if("endSuccess".equals(result)){
+                            //무전기 통신 버튼 UI변경을 위해서 브로드캐스트 송신
+                            Intent intent = new Intent(AdminApplication.AUDIO_COMMUNICATION_CHANGED);
+                            intent.putExtra("result","endSuccess");
+                            Log.d(TAG,"endSuccess");
+                            radioCommunicationService.sendBroadcast(intent);
+                        //해제실패(마이크 동작 불가처리)
+                        } else if("endFail".equals(result)){
+                            //무전기 통신 버튼 UI변경을 위해서 브로드캐스트 송신
+                            Intent intent = new Intent(AdminApplication.AUDIO_COMMUNICATION_CHANGED);
+                            intent.putExtra("result","endFail");
+                            Log.d(TAG,"endFail");
+                            radioCommunicationService.sendBroadcast(intent);
+                        }
+
+                    }
+
+                }catch(UnknownHostException e) {
+                    Log.e(TAG, "Failure. UnknownHostException in sendMessage: " + serverIP);
+                }catch(SocketException e) {
+                    Log.e(TAG, "Failure. SocketException in sendMessage: " + e);
+                }catch(IOException e) {
+                    Log.e(TAG, "Failure. IOException in sendMessage: " + e);
+                }
+            }
+        });
+        micManageAcceptThread.start();
+    }
+
+
+    //마이크 이용가능한지 체크(이용가능하면 마이크 실행)
+    public void micCheckAndGo(){
+        Thread micCheckAndGoThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DatagramSocket audioManageSocket = null;
+                try {
+                    //마이크 동작해도 될지 서버에 요청후 응답받기
+                    String message = "ADD:"+LoginActivity.userMap.get("user_id")+";"+roomNo;
+                    byte[] data = message.getBytes();
+                    InetAddress address = InetAddress.getByName(serverIP);
+                    audioManageSocket = new DatagramSocket();
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, AUDIO_MANAGE_PORT);
+                    //이용 가능여부 송출
+                    audioManageSocket.send(packet);
+
+                    //소켓 끊기
+                    audioManageSocket.disconnect();
+                    audioManageSocket.close();
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                    //소켓 끊기
+                    if(audioManageSocket != null){
+                        audioManageSocket.disconnect();
+                        audioManageSocket.close();
+                    }
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                    //소켓 끊기
+                    if(audioManageSocket != null){
+                        audioManageSocket.disconnect();
+                        audioManageSocket.close();
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    //소켓 끊기
+                    if(audioManageSocket != null){
+                        audioManageSocket.disconnect();
+                        audioManageSocket.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //소켓 끊기
+                    if(audioManageSocket != null){
+                        audioManageSocket.disconnect();
+                        audioManageSocket.close();
+                    }
+                }
+            }
+        });
+        micCheckAndGoThread.start();
+    }
+
+    //마이크사용중인 방 해제&체크
+    public void micEndCheck(){
+        Thread micEndCheckThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DatagramSocket audioManageSocket = null;
+                try {
+                    //마이크 동작해도 될지 서버에 요청후 응답받기
+                    String message = "END:"+LoginActivity.userMap.get("user_id")+";"+roomNo;
+                    byte[] data = message.getBytes();
+                    InetAddress address = InetAddress.getByName(serverIP);
+                    audioManageSocket = new DatagramSocket();
+                    DatagramPacket packet = new DatagramPacket(data, data.length, address, AUDIO_MANAGE_PORT);
+                    audioManageSocket.send(packet);
+
+                    //소켓 끊기
+                    audioManageSocket.disconnect();
+                    audioManageSocket.close();
+
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                    //소켓 끊기
+                    if(audioManageSocket != null){
+                        audioManageSocket.disconnect();
+                        audioManageSocket.close();
+                    }
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                    //소켓 끊기
+                    if(audioManageSocket != null){
+                        audioManageSocket.disconnect();
+                        audioManageSocket.close();
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    //소켓 끊기
+                    if(audioManageSocket != null){
+                        audioManageSocket.disconnect();
+                        audioManageSocket.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //소켓 끊기
+                    if(audioManageSocket != null){
+                        audioManageSocket.disconnect();
+                        audioManageSocket.close();
+                    }
+                }
+            }
+        });
+        micEndCheckThread.start();
+    }
+
 
 }
