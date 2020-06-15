@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -67,7 +68,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                             intent = new Intent(MyPageActivity.this,LoginActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); //현재 TASK 비우기, 새로운 TASK만들기
                             //local에서 유저 정보 삭제
-                            LoginActivity.userMap.clear();
+                            AdminApplication.userMap.clear();
 
                             //SharedPreferences에서도 유저 정보 삭제
                             SharedPreferences pref = getSharedPreferences("myApp", MODE_PRIVATE);
@@ -75,7 +76,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                             editor.remove("userList");
                             editor.commit();
 
-                            Log.d(TAG,"[로그아웃 확인]"+LoginActivity.userMap);
+                            Log.d(TAG,"[로그아웃 확인]"+AdminApplication.userMap);
                             startActivity(intent);
                             finish();
                         }
@@ -110,13 +111,13 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
         navView.getMenu().getItem(2).setChecked(true);
 
         //나의 네임 표시
-        text_user_name.setText(LoginActivity.userMap.get("nick_name").toString()+"님");
+        text_user_name.setText(AdminApplication.userMap.get("nick_name").toString()+"님");
 
         //프로필 사진 있으면 보여주기
-        if(LoginActivity.userMap.get("profile_image") !=null
-                && !"null".equals(LoginActivity.userMap.get("profile_image").toString())
-                && LoginActivity.profileImage != null){
-            image_profile.setImageBitmap(LoginActivity.profileImage);
+        if(AdminApplication.userMap.get("profile_image") !=null
+                && !"null".equals(AdminApplication.userMap.get("profile_image").toString())
+                && AdminApplication.profileImage != null){
+            image_profile.setImageBitmap(AdminApplication.profileImage);
         //없으면 기본 프로필 사진 보여주기
         }else{
             image_profile.setImageResource(R.drawable.icon_profile);

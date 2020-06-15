@@ -12,9 +12,8 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
-import com.action.outdooractivityapp.activity.LoginActivity;
-import com.action.outdooractivityapp.activity.RoomChatActivity;
 import com.action.outdooractivityapp.urlConnection.BringImageFile;
 
 import java.util.List;
@@ -59,7 +58,7 @@ public class RVChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.View
         Log.d(TAG,"onBindViewHolder");
 
         String writer = items.get(position).get("writer").toString();
-        String userId = LoginActivity.userMap.get("user_id").toString();
+        String userId = AdminApplication.userMap.get("user_id").toString();
 
         //나의 메시지라면
         if(userId.equals(writer)){
@@ -112,7 +111,7 @@ public class RVChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public int getItemViewType(int position) {
         String writer = items.get(position).get("writer").toString();
-        String userId = LoginActivity.userMap.get("user_id").toString();
+        String userId = AdminApplication.userMap.get("user_id").toString();
         //나의 메시지라면 0
         if(userId.equals(writer)){
             return 0;

@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.popup.TakingImageProfilePopup;
 import com.action.outdooractivityapp.urlConnection.UploadFile;
@@ -48,8 +49,8 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
     private Bitmap imageBitmap;
     private String currentPhotoPath;
 
-    private String nickName = LoginActivity.userMap.get("nick_name").toString();
-    private Map userMap = LoginActivity.userMap;
+    private String nickName = AdminApplication.userMap.get("nick_name").toString();
+    private Map userMap = AdminApplication.userMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +71,8 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
         //프로필 사진 있으면 보여주기
         if(userMap.get("profile_image") !=null
                 && !"null".equals(userMap.get("profile_image").toString())
-                && LoginActivity.profileImage != null){
-            image_profile.setImageBitmap(LoginActivity.profileImage);
+                && AdminApplication.profileImage != null){
+            image_profile.setImageBitmap(AdminApplication.profileImage);
         //없으면 기본 프로필 사진 보여주기
         }else{
             image_profile.setImageResource(R.drawable.icon_profile_invert);
@@ -161,7 +162,7 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
                 }else{
                     image_profile.setImageResource(R.drawable.icon_profile_invert);
                 }
-                Log.d(TAG,"[TEST]확인"+LoginActivity.userMap);
+                Log.d(TAG,"[TEST]확인"+AdminApplication.userMap);
 
             }else if(resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
@@ -173,11 +174,11 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
     void saveData(){
         //userMap의 nick_name 변경
         String editUserName = edit_user_name.getText().toString();
-        LoginActivity.userMap.put("nick_name", editUserName);
+        AdminApplication.userMap.put("nick_name", editUserName);
 
         //------- user닉네임 수정 ----------------
         String url = "https://wowoutdoor.tk/user/nick_name_update_query.php";
-        String parameters = "user_id="+LoginActivity.userMap.get("user_id").toString()+"&nick_name="+LoginActivity.userMap.get("nick_name").toString();
+        String parameters = "user_id="+AdminApplication.userMap.get("user_id").toString()+"&nick_name="+AdminApplication.userMap.get("nick_name").toString();
         String method = "POST";
 
         //데이터 베이스에서 정보를 가져옴
@@ -195,7 +196,7 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
             if("initialize".equals(flag)){
                 //------- user프로필 사진경로 null로 바꾸기 ----------------
                 url = "https://wowoutdoor.tk/user/profile_image_update_query.php";
-                parameters = "user_id="+LoginActivity.userMap.get("user_id").toString();
+                parameters = "user_id="+AdminApplication.userMap.get("user_id").toString();
                 method = "POST";
 
                 //데이터 베이스에서 정보를 가져옴
@@ -206,8 +207,8 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
 
                 //로컬 유저 정보 수정
                 if(result){
-                    LoginActivity.userMap.put("profile_image", null);
-                    LoginActivity.profileImage = null;
+                    AdminApplication.userMap.put("profile_image", null);
+                    AdminApplication.profileImage = null;
                 }
                 //---------------------------------------------------
             }

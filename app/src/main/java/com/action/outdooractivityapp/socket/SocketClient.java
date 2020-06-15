@@ -13,15 +13,12 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
-import com.action.outdooractivityapp.activity.LoginActivity;
 import com.action.outdooractivityapp.activity.RoomChatActivity;
-import com.action.outdooractivityapp.activity.TogetherActivity;
 import com.action.outdooractivityapp.service.SocketService;
 import com.action.outdooractivityapp.urlConnection.BringImageFile;
 import com.action.outdooractivityapp.util.Util;
@@ -104,7 +101,7 @@ public class SocketClient extends AsyncTask<String, Map, String> {
                     OutputStream os = socket.getOutputStream();
                     PrintWriter writer = new PrintWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
 
-                    String userId = LoginActivity.userMap.get("user_id").toString();
+                    String userId = AdminApplication.userMap.get("user_id").toString();
 
                     String userAndRoomInfo = userId+";"+roomNo;
 

@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.action.outdooractivityapp.activity.LoginActivity;
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.urlConnection.URLConnector;
 
 import org.json.JSONArray;
@@ -146,10 +146,10 @@ public class Util {
         JSONArray jsonArray = new JSONArray();
             try {
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("userId", LoginActivity.userMap.get("user_id"));
-                jsonObject.put("userPassword", LoginActivity.userMap.get("user_password"));
-                jsonObject.put("nickName", LoginActivity.userMap.get("nick_name"));
-                jsonObject.put("profileImage", LoginActivity.userMap.get("profile_image"));
+                jsonObject.put("userId", AdminApplication.userMap.get("user_id"));
+                jsonObject.put("userPassword", AdminApplication.userMap.get("user_password"));
+                jsonObject.put("nickName", AdminApplication.userMap.get("nick_name"));
+                jsonObject.put("profileImage", AdminApplication.userMap.get("profile_image"));
 
                 jsonArray.put(jsonObject);
 
@@ -178,7 +178,7 @@ public class Util {
             userMap.put("nick_name", jsonObject.optString("nickName",""));
             userMap.put("profile_image", jsonObject.optString("profileImage",""));
 
-            LoginActivity.userMap = userMap;
+            AdminApplication.userMap = userMap;
 
 
         } catch (JSONException e) {
@@ -186,7 +186,7 @@ public class Util {
             e.printStackTrace();
         }
 
-        Log.d(TAG,"LoginActivity.userMap:"+LoginActivity.userMap);
+        Log.d(TAG,"AdminApplication.userMap:"+AdminApplication.userMap);
     }
 
     //String => Date로 변경 (형식: yyyy-MM-dd HH:mm:ss)

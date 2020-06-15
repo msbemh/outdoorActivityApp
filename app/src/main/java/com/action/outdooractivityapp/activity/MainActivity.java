@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.service.ForcedTerminationService;
 import com.action.outdooractivityapp.util.Util;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         registerListener();
 
-        Log.d(TAG,LoginActivity.userMap.toString());
+        Log.d(TAG, AdminApplication.userMap.toString());
 
         //앱 강제 종료시켰을때 Destroy 동작 시키기 위해서 추가
 //        startService(new Intent(MainActivity.this, ForcedTerminationService.class));

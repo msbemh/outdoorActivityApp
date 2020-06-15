@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.util.Util;
 
@@ -73,7 +75,7 @@ public class RoomMicrophoneTestActivity extends AppCompatActivity implements Vie
 
 
         //서버에 나에 대한 정보 등록하기
-        message = "ADD:"+LoginActivity.userMap.get("user_id")+";"+LoginActivity.userMap.get("nick_name")+";"+roomNo;
+        message = "ADD:"+ AdminApplication.userMap.get("user_id")+";"+AdminApplication.userMap.get("nick_name")+";"+roomNo;
         userManage(message, SERVER_USER_PORT);
 
     }
@@ -115,7 +117,7 @@ public class RoomMicrophoneTestActivity extends AppCompatActivity implements Vie
             @Override
             public void run() {
                 try {
-                    message = "END:"+LoginActivity.userMap.get("user_id")+";"+LoginActivity.userMap.get("nick_name")+";"+roomNo;
+                    message = "END:"+AdminApplication.userMap.get("user_id")+";"+AdminApplication.userMap.get("nick_name")+";"+roomNo;
                     //UDP 통신 설정
                     InetAddress address = InetAddress.getByName(serverIP);
                     byte[] data = message.getBytes();

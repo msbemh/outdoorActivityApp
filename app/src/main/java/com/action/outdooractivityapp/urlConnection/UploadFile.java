@@ -5,13 +5,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
-
-import com.action.outdooractivityapp.activity.LoginActivity;
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.util.Util;
 
 import java.io.BufferedReader;
@@ -118,7 +114,7 @@ public class UploadFile extends AsyncTask<String, String, String> {
                 dos.writeBytes(twoHyphones + boundary + lineEnd); //Body 파라미터 구분
                 dos.writeBytes("Content-Disposition: form-data; name='user_id'"+ lineEnd);
                 dos.writeBytes(lineEnd);
-                dos.writeBytes(LoginActivity.userMap.get("user_id").toString());
+                dos.writeBytes(AdminApplication.userMap.get("user_id").toString());
                 dos.writeBytes(lineEnd);
 
                 //-------------소스파일을 byte로 읽어서 서버로 보내주자.-----------------
@@ -190,18 +186,18 @@ public class UploadFile extends AsyncTask<String, String, String> {
 
         //------- user정보 서버에서 가져오기 ----------------
         String url = "https://wowoutdoor.tk/user/select_user_query.php";
-        String parameters = "user_id="+LoginActivity.userMap.get("user_id").toString();
+        String parameters = "user_id="+AdminApplication.userMap.get("user_id").toString();
         String method = "GET";
 
         //데이터 베이스에서 정보를 가져옴
         List<Map> resultList = Util.httpConn(url, parameters, method);
         //이미지 경로 수정
-        LoginActivity.userMap.put("profile_image", resultList.get(0).get("profile_image"));
-        Log.d(TAG,"[바뀐 userMap]:"+LoginActivity.userMap);
+        AdminApplication.userMap.put("profile_image", resultList.get(0).get("profile_image"));
+        Log.d(TAG,"[바뀐 userMap]:"+AdminApplication.userMap);
         //---------------------------------------------------
 
         //------이미지 파일 서버에서 Bitmap으로 가져오기-------
-        BringImageFile bringImageFile = new BringImageFile(LoginActivity.userMap.get("profile_image").toString());
+        BringImageFile bringImageFile = new BringImageFile(AdminApplication.userMap.get("profile_image").toString());
 
         bringImageFile.start();
 
@@ -209,7 +205,7 @@ public class UploadFile extends AsyncTask<String, String, String> {
             bringImageFile.join();
             //이미지 불러오기 완료되면 가져오기
             Bitmap bitmap = bringImageFile.getBitmap();
-            LoginActivity.profileImage = bitmap;
+            AdminApplication.profileImage = bitmap;
         }
         catch(InterruptedException e){
             e.printStackTrace();

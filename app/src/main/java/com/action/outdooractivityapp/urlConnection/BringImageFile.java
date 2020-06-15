@@ -3,7 +3,6 @@ package com.action.outdooractivityapp.urlConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.action.outdooractivityapp.activity.LoginActivity;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;

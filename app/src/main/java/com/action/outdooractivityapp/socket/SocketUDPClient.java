@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.action.outdooractivityapp.AdminApplication;
-import com.action.outdooractivityapp.activity.LoginActivity;
 import com.action.outdooractivityapp.service.RadioCommunicationService;
 
 import java.io.IOException;
@@ -20,7 +19,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Map;
 
 public class SocketUDPClient extends AsyncTask<String, String, String> {
 
@@ -69,7 +67,7 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
     @Override
     protected String doInBackground(String... strings) {
         //서버에 나에 대한 정보 등록하기
-        message = "ADD:"+ LoginActivity.userMap.get("user_id")+";"+LoginActivity.userMap.get("nick_name")+";"+roomNo;
+        message = "ADD:"+ AdminApplication.userMap.get("user_id")+";"+AdminApplication.userMap.get("nick_name")+";"+roomNo;
         userManage(message, SERVER_USER_PORT);
         return null;
     }
@@ -278,7 +276,7 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
             @Override
             public void run() {
                 try {
-                    message = "END:"+LoginActivity.userMap.get("user_id")+";"+LoginActivity.userMap.get("nick_name")+";"+roomNo;
+                    message = "END:"+AdminApplication.userMap.get("user_id")+";"+AdminApplication.userMap.get("nick_name")+";"+roomNo;
                     //UDP 통신 설정
                     InetAddress address = InetAddress.getByName(serverIP);
                     byte[] data = message.getBytes();
@@ -329,7 +327,7 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
             public void run() {
                 try {
                     //마이크 사용 관리 접속 시키기
-                    String message = LoginActivity.userMap.get("user_id")+";"+roomNo;
+                    String message = AdminApplication.userMap.get("user_id")+";"+roomNo;
                     byte[] data = message.getBytes();
                     InetAddress address = InetAddress.getByName(serverIP);
                     micManageAcceptSocket = new DatagramSocket();
@@ -401,7 +399,7 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
                 DatagramSocket audioManageSocket = null;
                 try {
                     //마이크 동작해도 될지 서버에 요청후 응답받기
-                    String message = "ADD:"+LoginActivity.userMap.get("user_id")+";"+roomNo;
+                    String message = "ADD:"+AdminApplication.userMap.get("user_id")+";"+roomNo;
                     byte[] data = message.getBytes();
                     InetAddress address = InetAddress.getByName(serverIP);
                     audioManageSocket = new DatagramSocket();
@@ -454,7 +452,7 @@ public class SocketUDPClient extends AsyncTask<String, String, String> {
                 DatagramSocket audioManageSocket = null;
                 try {
                     //마이크 동작해도 될지 서버에 요청후 응답받기
-                    String message = "END:"+LoginActivity.userMap.get("user_id")+";"+roomNo;
+                    String message = "END:"+AdminApplication.userMap.get("user_id")+";"+roomNo;
                     byte[] data = message.getBytes();
                     InetAddress address = InetAddress.getByName(serverIP);
                     audioManageSocket = new DatagramSocket();

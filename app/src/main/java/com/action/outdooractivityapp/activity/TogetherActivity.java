@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVRoomAdapter;
 import com.action.outdooractivityapp.util.Util;
@@ -67,7 +68,7 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
 
         createApplyRecyclerview();
 
-        Log.d(TAG,LoginActivity.userMap.toString());
+        Log.d(TAG, AdminApplication.userMap.toString());
 
     }
 

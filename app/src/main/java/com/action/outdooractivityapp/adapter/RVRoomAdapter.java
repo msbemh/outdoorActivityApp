@@ -14,13 +14,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.action.outdooractivityapp.R;
-import com.action.outdooractivityapp.activity.LoginActivity;
-import com.action.outdooractivityapp.activity.MainActivity;
 import com.action.outdooractivityapp.activity.RoomChatActivity;
 import com.action.outdooractivityapp.util.Util;
 

@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.urlConnection.BringImageFile;
 import com.action.outdooractivityapp.urlConnection.URLConnector;
@@ -32,10 +33,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button button_sign_up;
 
     private static final String TAG = "LoginActivity";
-
-    /* 로그인된 user정보 저장 */
-    public static Map userMap = new HashMap();
-    public static Bitmap profileImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +71,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
 
                 //------이미지 파일 서버에서 Bitmap으로 가져오기-------
-                BringImageFile bringImageFile = new BringImageFile(userMap.get("profile_image").toString());
+                BringImageFile bringImageFile = new BringImageFile(AdminApplication.userMap.get("profile_image").toString());
 
                 bringImageFile.start();
 
@@ -82,13 +79,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     bringImageFile.join();
                     //이미지 불러오기 완료되면 가져오기
                     Bitmap bitmap = bringImageFile.getBitmap();
-                    LoginActivity.profileImage = bitmap;
+                    AdminApplication.profileImage = bitmap;
                 }
                 catch(InterruptedException e){
                     e.printStackTrace();
                 }
                 //----------------------------------------------------
-                Log.d(TAG,"[TEST]확인"+LoginActivity.userMap);
+                Log.d(TAG,"[TEST]확인"+AdminApplication.userMap);
                 startActivity(intent);
                 finish();
             //로그인 실패
@@ -125,7 +122,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         if(cnt>0){
             //로그인 성공
-            userMap = resultList.get(0);
+            AdminApplication.userMap = resultList.get(0);
             //SharedPreferences에 저장
             Util.saveUser(this);
             return true;
@@ -143,18 +140,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         //SharedPreferences에서 로그인 정보를 가져온다.
         //[이유]한번 로그인하면, 로그아웃전까지 세션유지시키기 위해서.
         Util.bringUser(this);
-        Log.d(TAG,"userMap:"+userMap);
+        Log.d(TAG,"userMap:"+AdminApplication.userMap);
 
         //다시 로그인 체크
-        if(userMap.size() > 0){
-            String userId = userMap.get("user_id").toString();
-            String userPassword = userMap.get("user_password").toString();
+        if(AdminApplication.userMap.size() > 0){
+            String userId = AdminApplication.userMap.get("user_id").toString();
+            String userPassword = AdminApplication.userMap.get("user_password").toString();
             if(checkLogin(userId, userPassword)){
                 intent = new Intent(this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
 
                 //------이미지 파일 서버에서 Bitmap으로 가져오기-------
-                BringImageFile bringImageFile = new BringImageFile(userMap.get("profile_image").toString());
+                BringImageFile bringImageFile = new BringImageFile(AdminApplication.userMap.get("profile_image").toString());
 
                 bringImageFile.start();
 
@@ -162,13 +159,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     bringImageFile.join();
                     //이미지 불러오기 완료되면 가져오기
                     Bitmap bitmap = bringImageFile.getBitmap();
-                    LoginActivity.profileImage = bitmap;
+                    AdminApplication.profileImage = bitmap;
                 }
                 catch(InterruptedException e){
                     e.printStackTrace();
                 }
                 //----------------------------------------------------
-                Log.d(TAG,"[TEST]확인"+LoginActivity.userMap);
+                Log.d(TAG,"[TEST]확인"+AdminApplication.userMap);
                 Toast.makeText(this,"이미 로그인한 상태입니다.",Toast.LENGTH_SHORT).show();
                 startActivity(intent);
                 finish();
