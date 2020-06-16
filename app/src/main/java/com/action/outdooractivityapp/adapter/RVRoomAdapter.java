@@ -128,7 +128,7 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                     Util.toastText(context,"패스워드가 틀립니다.");
                                 }else if(cnt == 1){
                                     intent = new Intent(context, RoomChatActivity.class);
-                                    intent.putExtra("room_no",items.get(position).get("room_no").toString());
+                                    intent.putExtra("room_no", Integer.parseInt(items.get(position).get("room_no").toString()));
 
                                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); //연속으로 2번 눌러도 activity가 2개 생성되지 않도록 하기위해서 사용.
                                     context.startActivity(intent);
@@ -140,14 +140,14 @@ public class RVRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         //---------------------------------------------------------------------------------------------
                     }
                 });
-                //패스워드 없는 방일때
+            //패스워드 없는 방일때
             }else{
                 holderRoom.image_key.setVisibility(View.GONE);
                 holderRoom.itemView.setOnClickListener(new View.OnClickListener(){
                     @Override
                     public void onClick(View v) {
                         intent = new Intent(context, RoomChatActivity.class);
-                        intent.putExtra("room_no",items.get(position).get("room_no").toString());
+                        intent.putExtra("room_no", Integer.parseInt(items.get(position).get("room_no").toString()));
 
                         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); //연속으로 2번 눌러도 activity가 2개 생성되지 않도록 하기위해서 사용.
                         context.startActivity(intent);

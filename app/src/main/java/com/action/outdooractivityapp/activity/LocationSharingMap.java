@@ -16,8 +16,11 @@ import androidx.core.content.ContextCompat;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.util.Util;
 
+import net.daum.mf.map.api.CameraUpdateFactory;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
+
+import java.util.Iterator;
 
 public class LocationSharingMap extends AppCompatActivity implements View.OnClickListener, MapView.CurrentLocationEventListener {
 
@@ -33,6 +36,8 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
     private ImageView image_microphone;
 
     public MapView mapView;
+    public MapPoint currentMapPoint;
+    private boolean isCameraMove = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +59,15 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
         }else{
             //현재위치 설정
-            mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
+            Log.d(TAG, "내위치 설정");
+            mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeadingWithoutMapMoving);
+
         }
+
+
+
+
+
     }
 
     //권한 설정 결과
@@ -66,7 +78,8 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
                 //위치 사용 허가했을 때
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //현재위치 설정
-                    mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
+                    Log.d(TAG, "내위치 설정");
+                    mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeadingWithoutMapMoving);
                 //위치 사용 허가 안했을 때
                 } else {
                     Log.d("TAG", "permission denied by user");
@@ -125,23 +138,34 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         }
     }
 
+
+
     @Override
     public void onCurrentLocationUpdate(MapView mapView, MapPoint mapPoint, float v) {
+        Log.d(TAG, "onCurrentLocationUpdate");
+        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord());
+        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().latitude);
+        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().longitude);
+        currentMapPoint = mapPoint;
+        if(isCameraMove){
+            mapView.moveCamera(CameraUpdateFactory.newMapPoint(currentMapPoint));
+            isCameraMove = false;
+        }
 
     }
 
     @Override
     public void onCurrentLocationDeviceHeadingUpdate(MapView mapView, float v) {
-
+        Log.d(TAG, "onCurrentLocationDeviceHeadingUpdate");
     }
 
     @Override
     public void onCurrentLocationUpdateFailed(MapView mapView) {
-
+        Log.d(TAG, "onCurrentLocationUpdateFailed");
     }
 
     @Override
     public void onCurrentLocationUpdateCancelled(MapView mapView) {
-
+        Log.d(TAG, "onCurrentLocationUpdateCancelled");
     }
 }

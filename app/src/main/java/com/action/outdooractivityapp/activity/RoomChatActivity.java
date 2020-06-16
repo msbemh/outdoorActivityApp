@@ -94,7 +94,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         //방번호 받기
         /*data 받아오기*/
         extras = getIntent().getExtras();
-        roomNo = Integer.parseInt(extras.getString("room_no"));
+        roomNo = extras.getInt("room_no", -1);
         Log.d(TAG, "roomNo:"+roomNo);
 
         //--------메시지 리스트 받아오기---------

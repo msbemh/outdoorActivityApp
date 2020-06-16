@@ -148,12 +148,10 @@ public class RoomMicrophoneActivity extends AppCompatActivity implements View.On
 
     void initializeView(){
         image_push_to_talk = findViewById(R.id.image_push_to_talk);
-//        button_push_to_talk_pause = findViewById(R.id.button_push_to_talk_pause);
     }
 
     void registerListener(){
         image_push_to_talk.setOnClickListener(this);
-//        button_push_to_talk_pause.setOnClickListener(this);
         image_push_to_talk.setOnTouchListener(this);
     }
 
@@ -168,17 +166,7 @@ public class RoomMicrophoneActivity extends AppCompatActivity implements View.On
     }
 
     @Override
-    public void onClick(View v) {
-//        //통신 클릭
-//        if(v.getId() == R.id.button_push_to_talk) {
-//            Log.d(TAG, "통신 클릭");
-//            //마이크 녹음 시작
-//            radioCommunicationService.startMic();
-//        //통신 중단 클릭
-//        }else if(v.getId() == R.id.button_push_to_talk_pause){
-//            radioCommunicationService.muteMic();
-//        }
-    }
+    public void onClick(View v) { }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -186,12 +174,14 @@ public class RoomMicrophoneActivity extends AppCompatActivity implements View.On
             if(MotionEvent.ACTION_DOWN == event.getAction()) {
                 Log.d(TAG, "녹음중...");
                 //마이크 녹음 시작
+//                radioCommunicationService.startMic();
                 if(AdminApplication.isAvailableMicrophone){
+                    //마이크 검사중일땐 노란색으로 표시
                     image_push_to_talk.setImageResource(R.drawable.radio_communication_waiting_image);
                     radioCommunicationService.micCheckAndGo();
                 }
 
-//                radioCommunicationService.startMic();
+
             }else if(MotionEvent.ACTION_UP == event.getAction()) {
                 Log.d(TAG, "녹음 종료");
                 //마이크 녹음 끝내기
