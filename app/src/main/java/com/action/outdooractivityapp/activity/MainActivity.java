@@ -4,8 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -15,6 +19,8 @@ import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.service.ForcedTerminationService;
 import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.security.MessageDigest;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -37,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
 
         //앱 강제 종료시켰을때 Destroy 동작 시키기 위해서 추가
         startService(new Intent(this, ForcedTerminationService.class));
+
+        //카카오앱을 위한 해시값 얻기
+        getAppKeyHash();
 
     }
 
@@ -89,5 +98,22 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(TAG,"메인 onDestroy()");
         Util.toastText(this, "메인 onDestroy()");
+    }
+
+    //카카오앱을 위한 해시값 얻기
+    private void getAppKeyHash() {
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md;
+                md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                String something = new String(Base64.encode(md.digest(), 0));
+                Log.d(TAG, something);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, e.toString());
+        }
     }
 }
