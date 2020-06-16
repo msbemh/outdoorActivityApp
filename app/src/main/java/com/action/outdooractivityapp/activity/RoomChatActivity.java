@@ -223,6 +223,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Util.toastText(this,"채팅방 onDestroy()");
         Log.d(TAG,"채팅방 onDestroy()");
 
         //메시지 리스트도 초기화

@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG,"메인 onCreate()");
         setContentView(R.layout.activity_main);
 
         initializeView();
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, AdminApplication.userMap.toString());
 
         //앱 강제 종료시켰을때 Destroy 동작 시키기 위해서 추가
-//        startService(new Intent(MainActivity.this, ForcedTerminationService.class));
+        startService(new Intent(this, ForcedTerminationService.class));
 
     }
 

@@ -16,10 +16,12 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -213,12 +215,29 @@ public class RoomMicrophoneActivity extends AppCompatActivity implements View.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Util.toastText(this,"마이크 onDestroy()동작");
         //무전기 서비스 unbind시키기
         unbindService(radioServiceConnection);
         //리시버 해제
         unregisterBroadcast();
     }
 
+    //뒤로가기 클릭
+    @Override
+    public void onBackPressed() {
+        Util.toastText(this,"onBackPressed클릭");
+        super.onBackPressed();
+        //마이크끄고 색깔 원상복귀
+        radioCommunicationService.micEndCheck();
+    }
 
+    //홈 클릭
+    @Override
+    protected void onUserLeaveHint() {
+        Util.toastText(this,"홈 클릭");
+        super.onUserLeaveHint();
+        //마이크끄고 색깔 원상복귀
+        radioCommunicationService.micEndCheck();
+    }
 
 }
