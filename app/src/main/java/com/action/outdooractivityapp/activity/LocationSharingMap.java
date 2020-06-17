@@ -29,6 +29,7 @@ import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,8 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
     private boolean isCameraMove = true;
 
     private LocationSharingService locationSharingService;
+
+    private List<MapPOIItem> locationList = new ArrayList<MapPOIItem>();
 
     //위치공유 서비스와 연결되는 부분
     ServiceConnection locationSharingServiceConnection = new ServiceConnection() {
@@ -74,21 +77,37 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
             Log.d(TAG,"위치공유 브로드캐스트 리시버 동작");
             List<Map> resultList = (List<Map>)intent.getSerializableExtra("result");
             Log.d(TAG,"resultList:"+resultList);
+
+            //지도에 마커 삭제
+            for(MapPOIItem mapPOIItem : locationList){
+                mapView.removePOIItem(mapPOIItem);
+            }
+            locationList.clear();
+
+            //지도에 표시할 마커 생성하기
+            int i =0;
             for(Map itemMap : resultList){
+                //데이터 추출
+                String nickName = itemMap.get("nickName").toString();
                 double longitude = Double.parseDouble(itemMap.get("longitude").toString());
                 double latitude = Double.parseDouble(itemMap.get("latitude").toString());
-                //마커 표시
-                MapPOIItem marker = new MapPOIItem();
-                marker.setItemName("Default Marker");
-                marker.setTag(0);
 
+                //마커 세팅
+                MapPOIItem marker = new MapPOIItem();
+                marker.setItemName(nickName);
+                marker.setTag(0);
+                //위치정보로 MapPoint생성
                 MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(latitude, longitude);
                 marker.setMapPoint(mapPoint);
                 marker.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
                 marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
-                mapView.addPOIItem(marker);
+                locationList.add(marker);
             }
 
+            //지도에 마커 추가
+            for(MapPOIItem mapPOIItem : locationList){
+                mapView.addPOIItem(mapPOIItem);
+            }
         }
     };
 
@@ -222,15 +241,6 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         if(isCameraMove){
             //카메라이동
             mapView.moveCamera(CameraUpdateFactory.newMapPoint(currentMapPoint));
-            //마커 표시
-            MapPOIItem marker = new MapPOIItem();
-            marker.setItemName("Default Marker");
-            marker.setTag(0);
-            marker.setMapPoint(currentMapPoint);
-            marker.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
-            marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
-            mapView.addPOIItem(marker);
-
             isCameraMove = false;
         }
 

@@ -5,16 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.service.LocationSharingService;
@@ -77,9 +73,9 @@ public class SocketLocationSharingClient extends AsyncTask<String, Map, String> 
                     Log.d(TAG, "[서버에 연결 요청 중]");
                     //서버쪽 public IP
                     //아마존 EC2 Ip
-//                    socket.connect(new InetSocketAddress("13.125.70.176", 5002));
+                    socket.connect(new InetSocketAddress("13.125.70.176", 50003));
                     //집 private Ip
-                    socket.connect(new InetSocketAddress("192.168.219.165", 5002));
+//                    socket.connect(new InetSocketAddress("192.168.219.165", 50003));
 
                     //---- 이곳에 PrintWriter을 통해서 유저정보, room정보, 위치정보를 서버에 보내주자 ------
                     OutputStream os = socket.getOutputStream();
