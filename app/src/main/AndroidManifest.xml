@@ -54,6 +54,10 @@
         <service
             android:name=".service.ForcedTerminationService"
             android:stopWithTask="false" />
+        <service
+            android:name=".service.LocationSharingService"
+            android:enabled="true"
+            android:exported="true" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

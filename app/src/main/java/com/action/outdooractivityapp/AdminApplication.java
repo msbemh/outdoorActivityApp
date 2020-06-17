@@ -16,6 +16,7 @@ public class AdminApplication extends Application {
     public static boolean isNotification = false;
     public static boolean isAvailableMicrophone = true;
     public final static String AUDIO_COMMUNICATION_CHANGED = "AUDIO_COMMUNICATION_CHANGED";
+    public final static String LOCATION_SHARE_BROAD_CAST = "LOCATION_SHARE_BROAD_CAST";
 
     @Override
     public void onCreate() {
