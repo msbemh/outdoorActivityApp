@@ -95,7 +95,7 @@ public class SocketClient extends AsyncTask<String, Map, String> {
                     //아마존 EC2 Ip
                     socket.connect(new InetSocketAddress("13.125.70.176", 5001));
                     //집 private Ip
-//                    socket.connect(new InetSocketAddress("192.168.219.187", 5001));
+//                    socket.connect(new InetSocketAddress("192.168.219.165", 5001));
 
                     //---- 이곳에 PrintWriter을 통해서 유저정보와 room정보를 서버에 보내주자 ------
                     OutputStream os = socket.getOutputStream();
@@ -139,12 +139,25 @@ public class SocketClient extends AsyncTask<String, Map, String> {
         while(true) {
             try {
                 InputStream is = socket.getInputStream();
-                //------Reader 테스트------
+                //------Reader ------
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
                 String result = reader.readLine();
                 System.out.println("[메시지 수신] message : " + result);
                 //socket이 끊긴경우 thread를 중지시키자.
                 if(result == null) {throw new IOException();}
+
+                //맨앞3글자가 "msg:"일 경우 메시지 정보, "lst:"일 겨우 현재 방에 있는 사람들 목록 정보
+                String action = result.substring(0, 4);
+                String info = result.substring(4, result.length());
+                //그대로 메시지 받기 진행
+                Log.d(TAG,"action:"+action);
+                if("msg:".equals(action)){
+                    Log.d(TAG,"info:"+info);
+                //같은방 유저 리스트를 브로드캐스트 하기
+                }else if("lst:".equals(action)){
+                    Log.d(TAG,"info:"+info);
+                    continue;
+                }
                 //-----------------------
 
                 //----- byte 단위로 읽기 -----
@@ -160,8 +173,8 @@ public class SocketClient extends AsyncTask<String, Map, String> {
                 List<Map> resultList = new ArrayList<Map>();
                 JSONArray jsonArray = null;
                 try {
-                    if(!TextUtils.isEmpty(result)){
-                        jsonArray = new JSONArray(result);
+                    if(!TextUtils.isEmpty(info)){
+                        jsonArray = new JSONArray(info);
                         for(int i=0; i<jsonArray.length(); i++){
                             resultList.add(Util.jsonToMap(jsonArray.getJSONObject(i)));
                         }
@@ -209,7 +222,7 @@ public class SocketClient extends AsyncTask<String, Map, String> {
 //					os.flush();
                     //------------------------
 
-                    //------writer 테스트------
+                    //------writer ------
                     OutputStream os = socket.getOutputStream();
                     PrintWriter writer = new PrintWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
                     writer.println(message);

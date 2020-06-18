@@ -106,6 +106,8 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
             //userName에 값이 있을때
             }else{
                 saveData();
+                //SharedPreferences에 저장
+                Util.saveUser(this);
             }
 
         //뒤로가기 버튼 클릭
