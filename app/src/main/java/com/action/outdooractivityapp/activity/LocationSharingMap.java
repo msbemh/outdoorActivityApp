@@ -49,6 +49,7 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
     private ImageView image_map;
     private ImageView image_microphone;
     private ImageView imageView_my_position;
+    private ImageView image_user_list;
 
     public MapView mapView;
     public MapPoint currentMapPoint;
@@ -203,6 +204,7 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         image_map = findViewById(R.id.image_map);
         image_microphone = findViewById(R.id.image_microphone);
         imageView_my_position = findViewById(R.id.imageView_my_position);
+        image_user_list = findViewById(R.id.image_user_list);
         //카카오지도
         mapView = new MapView(this);
         ViewGroup mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
@@ -216,6 +218,7 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         image_map.setOnClickListener(this);
         image_microphone.setOnClickListener(this);
         imageView_my_position.setOnClickListener(this);
+        image_user_list.setOnClickListener(this);
         //카카오지도
         mapView.setCurrentLocationEventListener(this);
     }
@@ -272,6 +275,12 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         //나의 위치로 이동버튼 클릭
         }else if(v.getId() == R.id.imageView_my_position){
             mapView.moveCamera(CameraUpdateFactory.newMapPoint(currentMapPoint));
+        //유저리스트 클릭
+        }else if(v.getId() == R.id.image_user_list){
+            intent = new Intent(this, TogetherUserListActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+            intent.putExtra("room_no", roomNo);
+            startActivity(intent);
         }
     }
 

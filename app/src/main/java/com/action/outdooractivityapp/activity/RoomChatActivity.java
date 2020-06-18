@@ -50,6 +50,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     private ImageView image_chat;
     private ImageView image_map;
     private ImageView image_microphone;
+    private ImageView image_user_list;
 
     public static List<Map> messageList = new ArrayList<Map>();
 
@@ -222,6 +223,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         image_chat = findViewById(R.id.image_chat);
         image_map = findViewById(R.id.image_map);
         image_microphone = findViewById(R.id.image_microphone);
+        image_user_list = findViewById(R.id.image_user_list);
     }
 
     void registerListener(){
@@ -230,6 +232,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         image_chat.setOnClickListener(this);
         image_map.setOnClickListener(this);
         image_microphone.setOnClickListener(this);
+        image_user_list.setOnClickListener(this);
     }
 
     void createApplyRecyclerview(){
@@ -277,6 +280,12 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         //위치공유맵 클릭
         }else if(v.getId() == R.id.image_map){
             intent = new Intent(this, LocationSharingMap.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+            intent.putExtra("room_no", roomNo);
+            startActivity(intent);
+        //유저리스트 클릭
+        }else if(v.getId() == R.id.image_user_list){
+            intent = new Intent(this, TogetherUserListActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
             intent.putExtra("room_no", roomNo);
             startActivity(intent);
