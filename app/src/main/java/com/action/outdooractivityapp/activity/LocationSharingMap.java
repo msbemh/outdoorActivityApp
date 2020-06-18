@@ -232,7 +232,7 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         recyclerView_map_user_list.setLayoutManager(layoutManagerMapUser);
 
         /*리사이클러뷰에 adapter적용*/
-        rvMapUserAdapter = new RVMapUserAdapter(this, userPositionInfoList, R.layout.row_recyclerview_map_user);
+        rvMapUserAdapter = new RVMapUserAdapter(this, userPositionInfoList, R.layout.row_recyclerview_map_user, mapView);
         recyclerView_map_user_list.setAdapter(rvMapUserAdapter);
     }
 

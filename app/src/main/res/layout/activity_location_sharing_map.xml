@@ -67,11 +67,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerView_map_user_list"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/relativeLayout2" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_map_user_list"
+        android:layout_margin="10dp"
+        android:padding="3dp"
+        android:background="@drawable/border"
         android:layout_width="0dp"
         android:layout_height="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -80,12 +84,12 @@
 
     <ImageView
         android:id="@+id/imageView_my_position"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/relativeLayout2"
-        app:srcCompat="@drawable/icon_compass" />
+        app:srcCompat="@drawable/icon_my_position" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

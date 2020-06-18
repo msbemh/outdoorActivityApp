@@ -15,6 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.urlConnection.BringImageFile;
+
+import net.daum.mf.map.api.CameraUpdateFactory;
+import net.daum.mf.map.api.MapPoint;
+import net.daum.mf.map.api.MapView;
+
 import java.util.List;
 import java.util.Map;
 
@@ -24,18 +29,19 @@ public class RVMapUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private int itemLayoutMapUser;
     private Intent intent;
     private static final String TAG = "RVMapUserAdapter";
+    private MapView mapView;
 
-    public RVMapUserAdapter(Context context, List<Map> items, int itemLayoutMapUser) {
+    public RVMapUserAdapter(Context context, List<Map> items, int itemLayoutMapUser, MapView mapView) {
         this.context = context;
         this.items = items;
         this.itemLayoutMapUser = itemLayoutMapUser;
+        this.mapView = mapView;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
         Log.d(TAG,"onCreateViewHolder");
-        View view = null;
-        view = LayoutInflater.from(parent.getContext()).inflate(itemLayoutMapUser, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(itemLayoutMapUser, parent, false);
         return new ViewHolderMapUser(view);
     }
 
@@ -81,6 +87,9 @@ public class RVMapUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 //지도 카메라 이동
                 Log.d(TAG, "longitude:"+longitude);
                 Log.d(TAG, "latitude:"+latitude);
+                MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(latitude, longitude);
+                //카메라이동
+                mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
             }
         });
     }
