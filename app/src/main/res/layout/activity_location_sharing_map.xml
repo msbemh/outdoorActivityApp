@@ -67,13 +67,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerView_room"
+        app:layout_constraintBottom_toTopOf="@+id/recyclerView_map_user_list"
         app:layout_constraintTop_toBottomOf="@+id/relativeLayout2" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_map_user_list"
         android:layout_width="0dp"
-        android:layout_height="100dp"
+        android:layout_height="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

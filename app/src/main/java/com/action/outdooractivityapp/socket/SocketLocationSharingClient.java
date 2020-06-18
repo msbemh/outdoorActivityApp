@@ -83,7 +83,8 @@ public class SocketLocationSharingClient extends AsyncTask<String, Map, String> 
 
                     String userId = AdminApplication.userMap.get("user_id").toString();
                     String nickName = AdminApplication.userMap.get("nick_name").toString();
-                    String dataInfo = userId + ";" + roomNo + ";" + nickName;
+                    String profileImage = AdminApplication.userMap.get("profile_image").toString();
+                    String dataInfo = userId + ";" + roomNo + ";" + nickName + ";" + profileImage;
 
                     writer.println(dataInfo);
                     writer.flush();
@@ -154,6 +155,7 @@ public class SocketLocationSharingClient extends AsyncTask<String, Map, String> 
                             Log.d(TAG, itemMap.get("roomNo").toString());
                             Log.d(TAG, itemMap.get("longitude").toString());
                             Log.d(TAG, itemMap.get("latitude").toString());
+                            Log.d(TAG, itemMap.get("profileImage").toString());
                         }
                         //---------------------------------------------------------
                         //지도에 같은방 사람들의 위치를 표시해주기 위해서 브로드캐스트 송신
@@ -187,9 +189,8 @@ public class SocketLocationSharingClient extends AsyncTask<String, Map, String> 
                         double latitude = 0;
                         if (ActivityCompat.checkSelfPermission(locationSharingService, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                            Log.d(TAG, "location:" + location);
                             if(location == null){
-                                Thread.sleep(1500);
+                                Thread.sleep(2000);
                                 continue;
                             }
                             longitude = location.getLongitude();
@@ -203,6 +204,7 @@ public class SocketLocationSharingClient extends AsyncTask<String, Map, String> 
 
                             String userId = AdminApplication.userMap.get("user_id").toString();
                             String nickName = AdminApplication.userMap.get("nick_name").toString();
+
                             String dataInfo = userId + ";" + roomNo + ";" + nickName + ";" + longitude + ";" + latitude;
                             writer.println(dataInfo);
                             writer.flush();

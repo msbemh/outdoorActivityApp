@@ -18,9 +18,12 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.adapter.RVMapUserAdapter;
 import com.action.outdooractivityapp.service.LocationSharingService;
 import com.action.outdooractivityapp.util.Util;
 
@@ -55,6 +58,12 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
 
     private List<MapPOIItem> locationList = new ArrayList<MapPOIItem>();
 
+    private RecyclerView recyclerView_map_user_list;
+    public RVMapUserAdapter rvMapUserAdapter;
+    public LinearLayoutManager layoutManagerMapUser;
+
+    public List<Map> userPositionInfoList = new ArrayList<Map>();
+
     //위치공유 서비스와 연결되는 부분
     ServiceConnection locationSharingServiceConnection = new ServiceConnection() {
         // 서비스와 연결되었을 때 호출되는 메서드
@@ -76,6 +85,11 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG,"위치공유 브로드캐스트 리시버 동작");
+
+            //리사이클러뷰와 연계된 유저위치정보 리스트 초기화
+            userPositionInfoList.clear();
+
+            //유저위치정보 리스트 받아오기
             List<Map> resultList = (List<Map>)intent.getSerializableExtra("result");
             Log.d(TAG,"resultList:"+resultList);
 
@@ -102,13 +116,21 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
                 marker.setMapPoint(mapPoint);
                 marker.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
                 marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+
+                //마커를 저장하는 위치리스트
                 locationList.add(marker);
+
+                //리사이클러뷰와 연계된 유저위치정보 리스트에 추가
+                userPositionInfoList.add(itemMap);
             }
 
             //지도에 마커 추가
             for(MapPOIItem mapPOIItem : locationList){
                 mapView.addPOIItem(mapPOIItem);
             }
+
+            //리사이클러뷰 위치정보 리스트 바뀐 부분 Change
+            rvMapUserAdapter.notifyDataSetChanged();
         }
     };
 
@@ -126,6 +148,8 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         initializeView();
 
         registerListener();
+
+        createApplyRecyclerview();
 
         registerBroadcast();
 
@@ -194,6 +218,22 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         imageView_my_position.setOnClickListener(this);
         //카카오지도
         mapView.setCurrentLocationEventListener(this);
+    }
+
+    void createApplyRecyclerview(){
+        /*리사이클러뷰 생성*/
+        recyclerView_map_user_list = findViewById(R.id.recyclerView_map_user_list);
+        recyclerView_map_user_list.setHasFixedSize(true);
+
+        /*리사이클러뷰 레이아웃 생성 및 적용*/
+        layoutManagerMapUser = new LinearLayoutManager(this);
+        layoutManagerMapUser.setOrientation(LinearLayoutManager.HORIZONTAL);
+
+        recyclerView_map_user_list.setLayoutManager(layoutManagerMapUser);
+
+        /*리사이클러뷰에 adapter적용*/
+        rvMapUserAdapter = new RVMapUserAdapter(this, userPositionInfoList, R.layout.row_recyclerview_map_user);
+        recyclerView_map_user_list.setAdapter(rvMapUserAdapter);
     }
 
     public void registerBroadcast(){
