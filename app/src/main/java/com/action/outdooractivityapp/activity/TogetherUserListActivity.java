@@ -1,8 +1,10 @@
 package com.action.outdooractivityapp.activity;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -11,9 +13,20 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.adapter.RVMapUserAdapter;
+import com.action.outdooractivityapp.adapter.RVRoomUserAdapter;
 import com.action.outdooractivityapp.service.SocketService;
+
+import net.daum.mf.map.api.MapPOIItem;
+import net.daum.mf.map.api.MapPoint;
+
+import java.util.List;
+import java.util.Map;
 
 public class TogetherUserListActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -31,6 +44,10 @@ public class TogetherUserListActivity extends AppCompatActivity implements View.
 
     private SocketService socketService; // 채팅 서비스 객체
 
+    private RecyclerView recyclerView_room_user_list;
+    public LinearLayoutManager layoutManagerRoomUserList;
+    public static RVRoomUserAdapter rvRoomUserAdapter;
+
     //채팅 서비스와 연결되는 부분
     ServiceConnection chatServiceConnection = new ServiceConnection() {
         // 서비스와 연결되었을 때 호출되는 메서드
@@ -47,13 +64,37 @@ public class TogetherUserListActivity extends AppCompatActivity implements View.
         }
     };
 
+    //같은방 유저리스트 브로드캐스트 수신받는곳
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"같은방 유저리스트 브로드캐스트 리시버 동작");
+
+            //리사이클러뷰와 연계된 유저위치정보 리스트 초기화
+
+            //유저위치정보 리스트 받아오기
+            List<Map> resultList = (List<Map>)intent.getSerializableExtra("resultList");
+            Log.d(TAG,"resultList:"+resultList);
+
+            //리사이클러뷰 위치정보 리스트 바뀐 부분 Change
+            //유저목록 리스트 recyclerview 리로드
+            rvRoomUserAdapter.notifyDataSetChanged();
+
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_together_user_list);
 
         initializeView();
 
         registerListener();
+
+        createApplyRecyclerview();
+
+        registerBroadcast();
 
         //방번호 받기
         /*data 받아오기*/
@@ -82,6 +123,32 @@ public class TogetherUserListActivity extends AppCompatActivity implements View.
         image_map.setOnClickListener(this);
         image_microphone.setOnClickListener(this);
         image_user_list.setOnClickListener(this);
+    }
+
+    void createApplyRecyclerview(){
+        /*리사이클러뷰 생성*/
+        recyclerView_room_user_list = findViewById(R.id.recyclerView_room_user_list);
+        recyclerView_room_user_list.setHasFixedSize(true);
+
+        /*리사이클러뷰 레이아웃 생성 및 적용*/
+        layoutManagerRoomUserList = new LinearLayoutManager(this);
+        layoutManagerRoomUserList.setOrientation(LinearLayoutManager.VERTICAL);
+
+        recyclerView_room_user_list.setLayoutManager(layoutManagerRoomUserList);
+
+        /*리사이클러뷰에 adapter적용*/
+        rvRoomUserAdapter = new RVRoomUserAdapter(this, SocketService.roomUserList, R.layout.row_recyclerview_room_user);
+        recyclerView_room_user_list.setAdapter(rvRoomUserAdapter);
+    }
+
+    public void registerBroadcast(){
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(AdminApplication.SAME_ROOM_USER_LIST);
+        registerReceiver(broadcastReceiver, filter);
+    }
+
+    public void unregisterBroadcast(){
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -121,5 +188,7 @@ public class TogetherUserListActivity extends AppCompatActivity implements View.
         super.onDestroy();
         //채팅 서비스 unbind시키기
         unbindService(chatServiceConnection);
+        //유저 리스트 브로드캐스트 해제
+        unregisterBroadcast();
     }
 }

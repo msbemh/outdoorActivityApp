@@ -42,6 +42,7 @@
         <activity android:name=".activity.MyPageActivity" />
         <activity android:name=".activity.ModifyProfileActivity" />
         <activity android:name=".activity.TogetherActivity" />
+        <activity android:name=".activity.TogetherUserListActivity" />
 
         <service
             android:name=".service.SocketService"

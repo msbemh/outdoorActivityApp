@@ -19,6 +19,7 @@ import androidx.core.app.TaskStackBuilder;
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.activity.RoomChatActivity;
+import com.action.outdooractivityapp.activity.TogetherUserListActivity;
 import com.action.outdooractivityapp.service.SocketService;
 import com.action.outdooractivityapp.urlConnection.BringImageFile;
 import com.action.outdooractivityapp.util.Util;
@@ -33,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -156,6 +158,32 @@ public class SocketClient extends AsyncTask<String, Map, String> {
                 //같은방 유저 리스트를 브로드캐스트 하기
                 }else if("lst:".equals(action)){
                     Log.d(TAG,"info:"+info);
+                    //--------같은방 유저 리스트 정보 json데이터 가져오기--------
+                    List<Map> resultList = new ArrayList<Map>();
+                    JSONArray jsonArray = null;
+                    try {
+                        if(!TextUtils.isEmpty(info)){
+                            jsonArray = new JSONArray(info);
+                            for(int i=0; i<jsonArray.length(); i++){
+                                resultList.add(Util.jsonToMap(jsonArray.getJSONObject(i)));
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    for(Map itemMap : resultList){
+                        Log.d(TAG, "[같은방 유저리스트]"+itemMap.get("userId").toString());
+                        Log.d(TAG, "[같은방 유저리스트]"+itemMap.get("nickName").toString());
+                        Log.d(TAG, "[같은방 유저리스트]"+itemMap.get("profileImage").toString());
+                    }
+                    //---------------------------------------------------------
+                    //지도에 같은방 사람들의 위치를 표시해주기 위해서 브로드캐스트 송신
+                    Intent intent = new Intent(AdminApplication.SAME_ROOM_USER_LIST);
+                    intent.putExtra("resultList",  (Serializable) resultList);
+                    socketService.sendBroadcast(intent);
+                    //리사이클러뷰와 관련된 유저목록 리스트 세팅
+                    SocketService.roomUserList.clear();
+                    SocketService.roomUserList.addAll(resultList);
                     continue;
                 }
                 //-----------------------
@@ -184,11 +212,11 @@ public class SocketClient extends AsyncTask<String, Map, String> {
                 }
 
                 for(Map itemMap : resultList){
-                    Log.d(TAG, itemMap.get("writer").toString());
-                    Log.d(TAG, itemMap.get("nickName").toString());
-                    Log.d(TAG, itemMap.get("message").toString());
-                    Log.d(TAG, itemMap.get("profileImage").toString());
-                    Log.d(TAG, itemMap.get("creationDate").toString());
+                    Log.d(TAG, "[메시지]"+itemMap.get("writer").toString());
+                    Log.d(TAG, "[메시지]"+itemMap.get("nickName").toString());
+                    Log.d(TAG, "[메시지]"+itemMap.get("message").toString());
+                    Log.d(TAG, "[메시지]"+itemMap.get("profileImage").toString());
+                    Log.d(TAG, "[메시지]"+itemMap.get("creationDate").toString());
                 }
                 //---------------------------------------------------------
 

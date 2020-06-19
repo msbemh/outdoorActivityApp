@@ -9,6 +9,10 @@ import android.util.Log;
 
 import com.action.outdooractivityapp.socket.SocketClient;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class SocketService extends Service {
 
     //client와 serivce가 통신하기 위한 Binder
@@ -18,6 +22,7 @@ public class SocketService extends Service {
     private static String TAG = "SocketService";
     private int roomNo = -1;
     SocketClient socketClient;
+    public static List<Map> roomUserList = new ArrayList<Map>();
 
     //client에게 service객체를 주어 서로 통신하기위함.
     public class MyBinder extends Binder {
