@@ -70,13 +70,10 @@ public class TogetherUserListActivity extends AppCompatActivity implements View.
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG,"같은방 유저리스트 브로드캐스트 리시버 동작");
 
-            //리사이클러뷰와 연계된 유저위치정보 리스트 초기화
-
             //유저위치정보 리스트 받아오기
-            List<Map> resultList = (List<Map>)intent.getSerializableExtra("resultList");
-            Log.d(TAG,"resultList:"+resultList);
+//            List<Map> resultList = (List<Map>)intent.getSerializableExtra("resultList");
+//            Log.d(TAG,"resultList:"+resultList);
 
-            //리사이클러뷰 위치정보 리스트 바뀐 부분 Change
             //유저목록 리스트 recyclerview 리로드
             rvRoomUserAdapter.notifyDataSetChanged();
 

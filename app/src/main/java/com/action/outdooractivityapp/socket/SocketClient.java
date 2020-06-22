@@ -171,6 +171,7 @@ public class SocketClient extends AsyncTask<String, Map, String> {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
                     for(Map itemMap : resultList){
                         Log.d(TAG, "[같은방 유저리스트]"+itemMap.get("userId").toString());
                         Log.d(TAG, "[같은방 유저리스트]"+itemMap.get("nickName").toString());
@@ -179,7 +180,6 @@ public class SocketClient extends AsyncTask<String, Map, String> {
                     //---------------------------------------------------------
                     //지도에 같은방 사람들의 위치를 표시해주기 위해서 브로드캐스트 송신
                     Intent intent = new Intent(AdminApplication.SAME_ROOM_USER_LIST);
-                    intent.putExtra("resultList",  (Serializable) resultList);
                     socketService.sendBroadcast(intent);
                     //리사이클러뷰와 관련된 유저목록 리스트 세팅
                     SocketService.roomUserList.clear();

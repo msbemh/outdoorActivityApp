@@ -108,7 +108,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
         Log.d(TAG,"마이페이지 onResume()");
 
         /*하단 네비게이션 checked표시*/
-        navView.getMenu().getItem(2).setChecked(true);
+        navView.getMenu().getItem(3).setChecked(true);
 
         //나의 네임 표시
         text_user_name.setText(AdminApplication.userMap.get("nick_name").toString()+"님");
@@ -134,6 +134,12 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                 /*메인 선택*/
                 case R.id.navigation_home:
                     intent = new Intent(MyPageActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+                    startActivity(intent);
+                    return true;
+                /*트래킹 게시판 선택*/
+                case R.id.navigation_tracking_board:
+                    intent = new Intent(MyPageActivity.this, TrackingBoardActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
                     startActivity(intent);
                     return true;

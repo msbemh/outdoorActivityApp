@@ -22,6 +22,8 @@ import com.action.outdooractivityapp.adapter.RVRoomAdapter;
 import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import net.daum.mf.map.api.MapView;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -237,6 +239,12 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
                     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
                     startActivity(intent);
                     return true;
+                /*트래킹 게시판 선택*/
+                case R.id.navigation_tracking_board:
+                    intent = new Intent(TogetherActivity.this, TrackingBoardActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+                    startActivity(intent);
+                    return true;
                 /*함께하기 선택*/
                 case R.id.navigation_together:
                     intent = new Intent(TogetherActivity.this, TogetherActivity.class);
@@ -260,7 +268,7 @@ public class TogetherActivity extends AppCompatActivity implements View.OnClickL
         Log.d(TAG,"함께해요 onResume()");
 
         /*하단 네비게이션 checked표시*/
-        navView.getMenu().getItem(1).setChecked(true);
+        navView.getMenu().getItem(2).setChecked(true);
 
 
     }

@@ -154,11 +154,13 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         intent.putExtra("roomNo", roomNo);
         bindService(intent, radioServiceConnection, Context.BIND_AUTO_CREATE);
 
+
         //나의 위치 1.5초 또는 1m 변경 될때마다 갱신 시키기.(LastLocation얻을때 값이 반영 돼있음.)
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1500, 1, locationListener);
         }
+
 
         //위치허용 권한 요구하기
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -348,6 +350,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             } else {
                 //Network 위치제공자에 의한 위치변화
                 //Network 위치는 Gps에 비해 정확도가 많이 떨어진다.
+                Log.d(TAG,"[리스너]동작안됨!!!");
             }
         }
 

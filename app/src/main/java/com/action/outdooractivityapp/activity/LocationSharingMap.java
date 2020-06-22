@@ -62,6 +62,7 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
     private RecyclerView recyclerView_map_user_list;
     public RVMapUserAdapter rvMapUserAdapter;
     public LinearLayoutManager layoutManagerMapUser;
+    private ViewGroup mapViewContainer;
 
     public List<Map> userPositionInfoList = new ArrayList<Map>();
 
@@ -207,7 +208,7 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         image_user_list = findViewById(R.id.image_user_list);
         //카카오지도
         mapView = new MapView(this);
-        ViewGroup mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
+        mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
         mapViewContainer.addView(mapView);
 
     }
@@ -288,10 +289,10 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onCurrentLocationUpdate(MapView mapView, MapPoint mapPoint, float v) {
-        Log.d(TAG, "onCurrentLocationUpdate");
-        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord());
-        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().latitude);
-        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().longitude);
+//        Log.d(TAG, "onCurrentLocationUpdate");
+//        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord());
+//        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().latitude);
+//        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().longitude);
         currentMapPoint = mapPoint;
         if(isCameraMove){
             //카메라이동
@@ -323,5 +324,8 @@ public class LocationSharingMap extends AppCompatActivity implements View.OnClic
         unbindService(locationSharingServiceConnection);
         //브로드캐스트 리시버 해제
         unregisterBroadcast();
+        //카카오맵 해제
+        mapViewContainer.removeView(mapView);
     }
+
 }

@@ -7,6 +7,11 @@
         android:title="활동기록" />
 
     <item
+        android:id="@+id/navigation_tracking_board"
+        android:icon="@drawable/icon_route"
+        android:title="트래킹 게시판" />
+
+    <item
         android:id="@+id/navigation_together"
         android:icon="@drawable/icon_together"
         android:title="함께하기" />
