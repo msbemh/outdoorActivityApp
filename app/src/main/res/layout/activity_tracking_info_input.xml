@@ -5,5 +5,101 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <RelativeLayout
+            android:id="@+id/relativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/border"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/image_back"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:tint="@color/colorBlack"
+                app:srcCompat="@drawable/abc_vector_test" />
+
+            <ImageView
+                android:id="@+id/image_check"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="351dp"
+                android:padding="3dp"
+                android:tint="@color/colorBlack"
+                app:srcCompat="@drawable/icon_check" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/colorBlack"
+            android:text="제목" />
+
+        <EditText
+            android:id="@+id/editText_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="제목을 입력해주세요."/>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textColor="@color/colorBlack"
+            android:layout_marginTop="10dp"
+            android:text="공개여부" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup_public_private"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <RadioButton
+                android:id="@+id/radioButton_public"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="공개" />
+
+            <RadioButton
+                android:id="@+id/radioButton_private"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="비공개" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textColor="@color/colorBlack"
+            android:layout_marginTop="10dp"
+            android:text="섬네일 사진" />
+
+        <ImageView
+            android:id="@+id/imageView_thumbnail"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:background="@drawable/border"
+            app:srcCompat="@drawable/icon_picture"/>
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

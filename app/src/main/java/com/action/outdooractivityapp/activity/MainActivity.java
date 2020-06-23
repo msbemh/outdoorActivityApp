@@ -431,7 +431,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.setNegativeButton("예",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        //---------------------------트래킹정보 DB에 저장시키기---------------------------
                         //트래킹 정보 List<Map> => Json으로 변환
                         JSONArray jsonArray = new JSONArray();
                         for(Map mapItem : trackingList){
@@ -446,28 +445,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         String location = jsonArray.toString();
 
-                        //안드로이드 => http => 데이터베이스 에서 정보를 가져오기 위해서
-                        //url, paramters, method정보가 필요함.
-                        String url = "https://wowoutdoor.tk/tracking/tracking_insert_query.php";
-                        String parameters = "user_id="+AdminApplication.userMap.get("user_id")+"&nick_name="+AdminApplication.userMap.get("nick_name")
-                                +"&location="+location;
-                        String method = "POST";
-                        Log.d(TAG,"location:"+location);
+                        //트래킹 정보를 포함시켜서 저장 Activity로 이동
+                        intent = new Intent(MainActivity.this, TrackingInfoInputActivity.class);
+                        intent.putExtra("location",location);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+                        startActivity(intent);
 
-                        //데이터 베이스에서 정보를 가져옴
-                        List<Map> resultList = Util.httpConn(url, parameters, method);
-                        //result : true  => 트래킹정보 저장 성공
-                        //result : false => 트래킹정보 저장 실패
-                        boolean result = Boolean.parseBoolean(resultList.get(0).get("result").toString());
-                        Log.d(TAG,"result:"+result);
-                        Log.d(TAG,"resultList.get(0).get(\"result\").toString():"+resultList.get(0).toString());
-
-                        if(result){
-                            Util.toastText(MainActivity.this,"저장이 완료됐습니다.");
-                        }else{
-                            Util.toastText(MainActivity.this,"저장에 실패했습니다.");
-                        }
-                        //-----------------------------------------------------------------------------------
                         //경로 초기화
                         routineReset();
                     }
