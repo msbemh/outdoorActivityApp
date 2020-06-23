@@ -131,7 +131,6 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
                 }else{
                     String uriString = data.getStringExtra("imageUri");
 
-                    //사진 촬영의 경우만 currentPhotoPath값 들어옴.
                     currentPhotoPath = data.getStringExtra("currentPhotoPath");
                     Log.d(TAG,"[넘어온 currentPhotoPath]:"+currentPhotoPath);
                     Log.d(TAG,"[넘어온 uri]:"+uriString);
