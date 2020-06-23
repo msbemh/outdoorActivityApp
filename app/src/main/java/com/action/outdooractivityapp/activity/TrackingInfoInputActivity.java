@@ -8,6 +8,8 @@ import com.action.outdooractivityapp.R;
 
 public class TrackingInfoInputActivity extends AppCompatActivity {
 
+    private final String TAG = "TrackingInfoInputActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
