@@ -2,6 +2,7 @@ package com.action.outdooractivityapp.urlConnection;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 
 import java.io.InputStream;
@@ -12,6 +13,7 @@ public class BringImageFile extends Thread {
 
     private String URL;
     private Bitmap bitmap;
+    private String TAG = "BringImageFile";
 
     @Override
     public void run() {
@@ -20,6 +22,7 @@ public class BringImageFile extends Thread {
 
     public BringImageFile(String url){
         this.URL = "https://wowoutdoor.tk/"+url;
+        Log.d(TAG,"URL:"+URL);
     }
 
     private void bringImageFile() {
@@ -35,6 +38,7 @@ public class BringImageFile extends Thread {
                 InputStream is = conn.getInputStream(); //inputStream 값 가져오기
 
                 bitmap = BitmapFactory.decodeStream(is); // Bitmap으로 반환
+                Log.d(TAG,"bitmap:"+bitmap);
             }
         }catch (Exception e){
             e.printStackTrace();

@@ -124,6 +124,28 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
             //이곳에서 모든게 완료되면 finish시켜줌.
             if(currentPhotoPath != null){
                 trackingThumbnailUploadFile(currentPhotoPath);
+            //업로드할 파일이 없을때
+            }else{
+                //안드로이드 => http => 데이터베이스 에서 정보를 가져오기 위해서
+                //url, paramters, method정보가 필요함.
+                String url = "https://wowoutdoor.tk/tracking/tracking_insert_query.php";
+                String parameters = "user_id="+ AdminApplication.userMap.get("user_id")+"&nick_name="+AdminApplication.userMap.get("nick_name")
+                        +"&location="+location+"&title="+title+"&is_public="+is_public+"&thumbnail_image_route="+currentPhotoPath;
+                String method = "POST";
+                Log.d(TAG,"parameters:"+parameters);
+
+                //데이터 베이스에서 정보를 가져옴
+                List<Map> resultList = Util.httpConn(url, parameters, method);
+                //result : true  => 트래킹정보 저장 성공
+                //result : false => 트래킹정보 저장 실패
+                boolean result = Boolean.parseBoolean(resultList.get(0).get("result").toString());
+
+                if(result){
+                    Util.toastText(this,"저장이 완료됐습니다.");
+                }else{
+                    Util.toastText(this,"저장에 실패했습니다.");
+                }
+                finish();
             }
             //-----------------------------------------------------------------------------------
         //이미지 클릭

@@ -3,6 +3,7 @@ package com.action.outdooractivityapp.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.action.outdooractivityapp.R;
@@ -49,7 +51,7 @@ public class RVTrackingBoardAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         Log.d(TAG,"onBindViewHolder");
         //데이터 추출
-//        String title = items.get(position).get("title").toString();
+        String title = items.get(position).get("title").toString();
         String user_id = items.get(position).get("user_id").toString();
         String nick_name = items.get(position).get("nick_name").toString();
 //        String location = items.get(position).get("location").toString();
@@ -58,31 +60,32 @@ public class RVTrackingBoardAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         //데이터 셋팅
         ViewHolderTrackingBoard viewHolder = (ViewHolderTrackingBoard) holder;
-//        viewHolder.textView_title.setText(title);
+        viewHolder.textView_title.setText(title);
         viewHolder.textView_user_id.setText(user_id);
         viewHolder.textView_nick_name.setText(nick_name);
         viewHolder.textView_creation_date.setText(create_date);
 
         //------이미지 파일 서버에서 Bitmap으로 가져오기-------
-//        String thumbnailImage = items.get(position).get("imageView_tracking_thumbnail").toString();
-//        Log.d(TAG,"thumbnailImage:"+thumbnailImage);
-//        if(!"null".equals(thumbnailImage) && !TextUtils.isEmpty(thumbnailImage) && thumbnailImage != null){
-//            BringImageFile bringImageFile = new BringImageFile(thumbnailImage);
-//
-//            bringImageFile.start();
-//            try{
-//                bringImageFile.join();
-//                //이미지 불러오기 완료되면 가져오기
-//                Bitmap bitmap = bringImageFile.getBitmap();
-//                viewHolder.imageView_tracking_thumbnail.setImageBitmap(bitmap);
-//            }
-//            catch(InterruptedException e){
-//                e.printStackTrace();
-//            }
-//        }else{
-//            //기본 프로필 이미지 보여주기
-//            viewHolder.imageView_tracking_thumbnail.setImageResource(R.drawable.icon_route);
-//        }
+        String thumbnail_image_route = items.get(position).get("thumbnail_image_route").toString();
+        Log.d(TAG,"thumbnail_image_route:"+thumbnail_image_route);
+        if(!"null".equals(thumbnail_image_route) && !TextUtils.isEmpty(thumbnail_image_route) && thumbnail_image_route != null){
+            BringImageFile bringImageFile = new BringImageFile(thumbnail_image_route);
+
+            bringImageFile.start();
+            try{
+                bringImageFile.join();
+                //이미지 불러오기 완료되면 가져오기
+                Bitmap bitmap = bringImageFile.getBitmap();
+                Log.d(TAG,"bitmap:"+bitmap);
+                viewHolder.imageView_tracking_thumbnail.setImageBitmap(bitmap);
+            }
+            catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }else{
+            //기본 프로필 이미지 보여주기
+            viewHolder.imageView_tracking_thumbnail.setImageResource(R.drawable.icon_route);
+        }
         //----------------------------------------------------
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
