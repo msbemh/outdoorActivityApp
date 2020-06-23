@@ -24,7 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activity.TrackingBoardViewActivity"></activity>
+        <activity android:name=".activity.TrackingInfoInputActivity"></activity>
+        <activity android:name=".activity.TrackingBoardViewActivity" />
         <activity android:name=".activity.TrackingBoardActivity" />
         <activity android:name=".activity.LocationSharingMap" /> <!-- 카카오맵 키 -->
         <meta-data

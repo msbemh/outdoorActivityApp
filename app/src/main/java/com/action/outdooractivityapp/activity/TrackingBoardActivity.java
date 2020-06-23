@@ -11,13 +11,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.action.outdooractivityapp.R;
-import com.action.outdooractivityapp.adapter.RVRoomUserAdapter;
 import com.action.outdooractivityapp.adapter.RVTrackingBoardAdapter;
-import com.action.outdooractivityapp.service.SocketService;
 import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 

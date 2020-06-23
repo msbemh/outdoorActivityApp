@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Map> trackingList = new ArrayList<Map>();
     private List<MapPolyline> polylineList = new ArrayList<MapPolyline>();
     private Location currentLocation;
+    private MapPoint currentMapPoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,14 +187,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG,"메인 onResume()");
-        /*하단 네비게이션 checked표시*/
-        navView.getMenu().getItem(0).setChecked(true);
-    }
-
-    @Override
     protected void onRestart() {
         super.onRestart();
         Log.d(TAG,"메인 onRestart()");
@@ -203,8 +196,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //카카오맵 다시 추가
         mapView = new MapView(this);
         mapViewContainer.addView(mapView);
+        //경로 삭제
+        mapView.removeAllPolylines();
         //경로 다시 생성
         createRoutine();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG,"메인 onResume()");
+        /*하단 네비게이션 checked표시*/
+        navView.getMenu().getItem(0).setChecked(true);
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG,"메인 onStop()");
+        //카카오지도 view 삭제
+        mapViewContainer.removeView(mapView);
+        //경로 삭제
+        mapView.removeAllPolylines();
+
     }
 
     @Override
@@ -214,22 +230,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Util.toastText(this, "메인 onDestroy()");
         //경로 초기화
         routineReset();
-
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG,"메인 onPause()");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG,"메인 onStop()");
-        //카카오지도 view 삭제
-        mapViewContainer.removeView(mapView);
-    }
 
     //카카오앱을 위한 해시값 얻기
     private void getAppKeyHash() {
@@ -259,6 +261,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 openDialog();
             //트래킹중이지 않은 상태
             }else if("end".equals(trackingStatus)){
+                //null 예외처리
+                if(currentLocation == null){
+                    Util.toastText(this,"아직 현재위치가 로딩되지 않았습니다.");
+                    return;
+                }
                 //현재위치 리스트에 추가
                 double latitude = currentLocation.getLatitude();
                 double longitude = currentLocation.getLongitude();
@@ -276,15 +283,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onCurrentLocationUpdate(MapView mapView, MapPoint mapPoint, float v) {
         Log.d(TAG, "onCurrentLocationUpdate");
-        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord());
-        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().latitude);
-        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().longitude);
-        Log.d(TAG, "현재위치v:"+v);
+//        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord());
+//        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().latitude);
+//        Log.d(TAG, "현재위치:"+mapPoint.getMapPointGeoCoord().longitude);
+//        Log.d(TAG, "현재위치v:"+v);
         if(isFirst){
             //카메라이동
             mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
+            //현재위치 Location객체로 저장
+            Location location = new Location("location");
+            location.setLatitude(mapPoint.getMapPointGeoCoord().latitude);
+            location.setLongitude(mapPoint.getMapPointGeoCoord().longitude);
+            currentLocation = location;
+            //처음 한번만 동작 되도록 잠그기
             isFirst = false;
         }
+        currentMapPoint = mapPoint;
     }
 
     @Override
@@ -347,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "createRoutine()동작");
         //------------------리스트 정보로 경로 만들어주기-------------------------------
         MapPolyline polyline = new MapPolyline();
-        polyline.setTag(1000);
+        polyline.setTag(1001);
         polyline.setLineColor(Color.argb(128, 255, 51, 0)); // Polyline 컬러 지정.
 
         //폴리라인 리스트에 저장
@@ -362,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Polyline 지도에 올리기.
         mapView.addPolyline(polyline);
 
-        //카메라이동
+        //트래킹 정보가 있을때 카메라이동
         if(trackingList.size() > 0){
             //가장 마지막 위치의 위도 경도 가져옴.
             double latitude = Double.parseDouble(trackingList.get(trackingList.size()-1).get("latitude").toString());
@@ -370,19 +384,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //위도경도 => MapPoint로 변환
             MapPoint mapPoint =  MapPoint.mapPointWithGeoCoord(latitude, longitude);
             mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
+        //트래킹 정보가 없을때 카메라이동
+        }else{
+            MapPoint mapPoint = convertLocationToMapPoint(currentLocation);
+            mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
         }
 
-//        // 지도뷰의 중심좌표와 줌레벨을 Polyline이 모두 나오도록 조정.
-//        MapPointBounds mapPointBounds = new MapPointBounds(polyline.getMapPoints());
-//        int padding = 100; // px
-//        mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds, padding));
         //-------------------------------------------------------------------------------------
     }
 
     //경로 초기화
     void routineReset(){
-        //맵에서 경로 없애기
-        removePolyLineToMap();
         //polyline 리스트 초기화
         polylineList.clear();
         //트래킹리스트 초기화
@@ -395,6 +407,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for(MapPolyline mapPolylineItem : polylineList){
             mapView.removePolyline(mapPolylineItem);
         }
+    }
+
+    MapPoint convertLocationToMapPoint(Location location){
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        MapPoint mapPoint =  MapPoint.mapPointWithGeoCoord(latitude, longitude);
+        return mapPoint;
     }
 
     //다이얼로그 열기
@@ -433,6 +452,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         String parameters = "user_id="+AdminApplication.userMap.get("user_id")+"&nick_name="+AdminApplication.userMap.get("nick_name")
                                 +"&location="+location;
                         String method = "POST";
+                        Log.d(TAG,"location:"+location);
 
                         //데이터 베이스에서 정보를 가져옴
                         List<Map> resultList = Util.httpConn(url, parameters, method);
@@ -440,6 +460,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //result : false => 트래킹정보 저장 실패
                         boolean result = Boolean.parseBoolean(resultList.get(0).get("result").toString());
                         Log.d(TAG,"result:"+result);
+                        Log.d(TAG,"resultList.get(0).get(\"result\").toString():"+resultList.get(0).toString());
 
                         if(result){
                             Util.toastText(MainActivity.this,"저장이 완료됐습니다.");

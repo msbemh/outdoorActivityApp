@@ -52,7 +52,7 @@ public class RVTrackingBoardAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 //        String title = items.get(position).get("title").toString();
         String user_id = items.get(position).get("user_id").toString();
         String nick_name = items.get(position).get("nick_name").toString();
-        String location = items.get(position).get("location").toString();
+//        String location = items.get(position).get("location").toString();
         String create_date = items.get(position).get("create_date").toString();
         final int tracking_no = Integer.parseInt(items.get(position).get("tracking_no").toString());
 
