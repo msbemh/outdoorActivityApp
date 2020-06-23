@@ -72,9 +72,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //
     private List<Map> trackingList = new ArrayList<Map>();
-    private List<MapPolyline> polylineList = new ArrayList<MapPolyline>();
     private Location currentLocation;
-    private MapPoint currentMapPoint;
+
+    private MapPolyline polyline;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,8 +198,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mapViewContainer.addView(mapView);
         //경로 삭제
         mapView.removeAllPolylines();
-        //경로 다시 생성
-        createRoutine();
+        //모든 경로 다시 생성
+        createAllRoutine();
 
     }
 
@@ -266,13 +266,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Util.toastText(this,"아직 현재위치가 로딩되지 않았습니다.");
                     return;
                 }
-                //현재위치 리스트에 추가
+
+                //현재위치 정보
                 double latitude = currentLocation.getLatitude();
                 double longitude = currentLocation.getLongitude();
+
+                //맵 다시 생서할때를 대비해서 위치정보 저장
                 Map map = new HashMap();
                 map.put("latitude",latitude);
                 map.put("longitude",longitude);
                 trackingList.add(map);
+                Log.d(TAG, "trackingList.size():"+trackingList.size());
 
                 imageView_tracking_button.setImageResource(R.drawable.icon_video_pause);
                 trackingStatus = "start";
@@ -280,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
      }
 
+    //카카오맵에서의 위치변화감지 (단점, 액티비티 안보이면 동작안함)
     @Override
     public void onCurrentLocationUpdate(MapView mapView, MapPoint mapPoint, float v) {
         Log.d(TAG, "onCurrentLocationUpdate");
@@ -298,7 +303,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //처음 한번만 동작 되도록 잠그기
             isFirst = false;
         }
-        currentMapPoint = mapPoint;
     }
 
     @Override
@@ -317,16 +321,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    //위치에 관한 리스너
+    //위치에 관한 리스너 (장점: 해당 액티비티 안보여도 동작함.)
     private final LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             //여기서 위치값이 갱신되면 이벤트가 발생한다.
             //값은 Location 형태로 리턴되며 좌표 출력 방법은 다음과 같다.
             if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
                 //Gps 위치제공자에 의한 위치변화. 오차범위가 좁다.
-                double longitude = location.getLongitude();    //경도
+                double longitude = location.getLongitude();       //경도
                 double latitude = location.getLatitude();         //위도
-                float accuracy = location.getAccuracy();        //신뢰도
+                float accuracy = location.getAccuracy();          //신뢰도
                 Log.d(TAG,"[리스너]longitude:"+longitude);
                 Log.d(TAG,"[리스너]latitude:"+latitude);
                 Log.d(TAG,"[리스너]accuracy:"+accuracy);
@@ -334,11 +338,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 //트랙킹 중일 때에만 리스트에추가하고 경로생성함.
                 if("start".equals(trackingStatus)) {
-                    //리스트에 추가
+
+                    //맵 다시 생서할때를 대비해서 위치정보 저장
                     Map map = new HashMap();
                     map.put("latitude",latitude);
                     map.put("longitude",longitude);
                     trackingList.add(map);
+                    Log.d(TAG, "trackingList.size():"+trackingList.size());
+
                     //경로 생성
                     createRoutine();
                 }
@@ -359,54 +366,78 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     void createRoutine(){
         Log.d(TAG, "createRoutine()동작");
+        Log.d(TAG, "!!!trackingList.size():"+trackingList.size());
         //------------------리스트 정보로 경로 만들어주기-------------------------------
-        MapPolyline polyline = new MapPolyline();
-        polyline.setTag(1001);
+        if(trackingList.size() > 1){
+            //polyLine 생성
+            polyline = new MapPolyline();
+            polyline.setTag(1);
+            polyline.setLineColor(Color.argb(128, 255, 51, 0)); // Polyline 컬러 지정.
+
+            //현재위치와 바로전 위치 가져오기
+            int size = trackingList.size();
+            double before_latitude = Double.parseDouble(trackingList.get(size-2).get("latitude").toString());
+            double before_longitude = Double.parseDouble(trackingList.get(size-2).get("longitude").toString());
+            double current_latitude = Double.parseDouble(trackingList.get(size-1).get("latitude").toString());
+            double current_longitude = Double.parseDouble(trackingList.get(size-1).get("longitude").toString());
+
+            //polyLine에 추가
+            polyline.addPoint(MapPoint.mapPointWithGeoCoord(before_latitude, before_longitude));
+            polyline.addPoint(MapPoint.mapPointWithGeoCoord(current_latitude, current_longitude));
+
+            //polyLine을 map에 추가
+            mapView.addPolyline(polyline);
+
+            //마지막 위치로 카메라 이동
+            MapPoint mapPoint =  MapPoint.mapPointWithGeoCoord(current_latitude, current_longitude);
+            mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
+        //트래킹 중이지 않을때 카메라 현재위치로 이동시키기.
+        }else{
+            MapPoint mapPoint = convertLocationToMapPoint(currentLocation);
+            mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
+        }
+        //-------------------------------------------------------------------------------------
+    }
+
+    //모든 경로 다시 생성
+    void createAllRoutine(){
+
+        //polyLine 생성
+        polyline = new MapPolyline();
+        polyline.setTag(1);
         polyline.setLineColor(Color.argb(128, 255, 51, 0)); // Polyline 컬러 지정.
 
-        //폴리라인 리스트에 저장
-        polylineList.add(polyline);
+        if(trackingList.size() > 1){
+            for(Map mapItem : trackingList){
+                double latitude = Double.parseDouble(mapItem.get("latitude").toString());
+                double longitude = Double.parseDouble(mapItem.get("longitude").toString());
+                polyline.addPoint(MapPoint.mapPointWithGeoCoord(latitude, longitude));
+            }
 
-        // Polyline 좌표 지정.
-        for(Map mapItem : trackingList){
-            double latitude = Double.parseDouble(mapItem.get("latitude").toString());
-            double longitude = Double.parseDouble(mapItem.get("longitude").toString());
-            polyline.addPoint(MapPoint.mapPointWithGeoCoord(latitude, longitude));
-        }
-        // Polyline 지도에 올리기.
-        mapView.addPolyline(polyline);
+            //polyLine을 map에 추가
+            mapView.addPolyline(polyline);
 
-        //트래킹 정보가 있을때 카메라이동
-        if(trackingList.size() > 0){
-            //가장 마지막 위치의 위도 경도 가져옴.
-            double latitude = Double.parseDouble(trackingList.get(trackingList.size()-1).get("latitude").toString());
-            double longitude = Double.parseDouble(trackingList.get(trackingList.size()-1).get("longitude").toString());
-            //위도경도 => MapPoint로 변환
-            MapPoint mapPoint =  MapPoint.mapPointWithGeoCoord(latitude, longitude);
+            //마지막 위치로 카메라 이동
+            int size = trackingList.size();
+            double current_latitude = Double.parseDouble(trackingList.get(size-1).get("latitude").toString());
+            double current_longitude = Double.parseDouble(trackingList.get(size-1).get("longitude").toString());
+            MapPoint mapPoint =  MapPoint.mapPointWithGeoCoord(current_latitude, current_longitude);
             mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
-        //트래킹 정보가 없을때 카메라이동
+        //트래킹 중이지 않을때 카메라 현재위치로 이동시키기.
         }else{
             MapPoint mapPoint = convertLocationToMapPoint(currentLocation);
             mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
         }
 
-        //-------------------------------------------------------------------------------------
     }
 
     //경로 초기화
     void routineReset(){
-        //polyline 리스트 초기화
-        polylineList.clear();
         //트래킹리스트 초기화
         trackingList.clear();
+        //경로 삭제
+        mapView.removeAllPolylines();
 
-    }
-
-    //맵에서 경로 없애기
-    void removePolyLineToMap(){
-        for(MapPolyline mapPolylineItem : polylineList){
-            mapView.removePolyline(mapPolylineItem);
-        }
     }
 
     MapPoint convertLocationToMapPoint(Location location){
@@ -424,8 +455,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.setMessage("트래킹 정보를 저장하시겠습니까?");
         dialog.setPositiveButton("아니오",new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                //경로 초기화
-                routineReset();
+            //경로 초기화
+            routineReset();
             }
         });
         dialog.setNegativeButton("예",
