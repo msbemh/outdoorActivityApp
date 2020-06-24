@@ -39,6 +39,7 @@ import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import net.daum.mf.map.api.CameraUpdateFactory;
+import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapPointBounds;
 import net.daum.mf.map.api.MapPolyline;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //
     private List<Map> trackingList = new ArrayList<Map>();
     private Location currentLocation;
+    private Location startLocation;
 
     private MapPolyline polyline;
 
@@ -200,6 +202,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mapView.removeAllPolylines();
         //모든 경로 다시 생성
         createAllRoutine();
+        //시작위치 다시 생성
+        if(startLocation != null){
+            startMarker(startLocation);
+        }
+
 
     }
 
@@ -228,8 +235,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         Log.d(TAG,"메인 onDestroy()");
         Util.toastText(this, "메인 onDestroy()");
-        //경로 초기화
-        routineReset();
+        //초기화
+        reset();
     }
 
 
@@ -267,6 +274,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
 
+                //시작위치 저장
+                startLocation = currentLocation;
+
                 //현재위치 정보
                 double latitude = currentLocation.getLatitude();
                 double longitude = currentLocation.getLongitude();
@@ -277,6 +287,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 map.put("longitude",longitude);
                 trackingList.add(map);
                 Log.d(TAG, "trackingList.size():"+trackingList.size());
+
+                //시작 위치에 Marker표시하기
+                startMarker(startLocation);
 
                 imageView_tracking_button.setImageResource(R.drawable.icon_video_pause);
                 trackingStatus = "start";
@@ -431,12 +444,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    //경로 초기화
-    void routineReset(){
+    //초기화
+    void reset(){
         //트래킹리스트 초기화
         trackingList.clear();
         //경로 삭제
         mapView.removeAllPolylines();
+        //시작위치 초기화
+        startLocation = null;
+        //모든 마커 삭제
+        mapView.removeAllPOIItems();
 
     }
 
@@ -447,6 +464,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return mapPoint;
     }
 
+    void startMarker(Location location){
+        MapPOIItem customMarker = new MapPOIItem();
+        customMarker.setItemName("시작위치");
+        customMarker.setTag(1);
+        MapPoint mapPoint = convertLocationToMapPoint(location);
+        customMarker.setMapPoint(mapPoint);
+        customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 마커타입을 커스텀 마커로 지정.
+        customMarker.setCustomImageResourceId(R.drawable.icon_tracking_start); // 마커 이미지.
+        customMarker.setCustomImageAutoscale(false); // hdpi, xhdpi 등 안드로이드 플랫폼의 스케일을 사용할 경우 지도 라이브러리의 스케일 기능을 꺼줌.
+        customMarker.setCustomImageAnchor(0.5f, 1.0f); // 마커 이미지중 기준이 되는 위치(앵커포인트) 지정 - 마커 이미지 좌측 상단 기준 x(0.0f ~ 1.0f), y(0.0f ~ 1.0f) 값.
+
+        mapView.addPOIItem(customMarker);
+    }
+
     //다이얼로그 열기
     void openDialog(){
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -455,8 +486,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.setMessage("트래킹 정보를 저장하시겠습니까?");
         dialog.setPositiveButton("아니오",new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-            //경로 초기화
-            routineReset();
+                //초기화
+                reset();
             }
         });
         dialog.setNegativeButton("예",
@@ -482,8 +513,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
                         startActivity(intent);
 
-                        //경로 초기화
-                        routineReset();
+                        //초기화
+                        reset();
                     }
                 });
         dialog.show();
