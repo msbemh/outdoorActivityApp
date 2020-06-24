@@ -72,6 +72,7 @@ public class TrackingBoardPrivateActivity extends AppCompatActivity implements S
         //DB에서 트래킹 게시판 리스트 가져오기
         String url = "https://wowoutdoor.tk/tracking/tracking_select_query.php";
         String parameters = "is_public=false"+"&user_id="+AdminApplication.userMap.get("user_id");
+        Log.d(TAG,"url:"+url+"?"+parameters);
         String method = "GET";
 
         //데이터 베이스에서 정보를 가져옴

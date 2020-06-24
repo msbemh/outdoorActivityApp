@@ -19,9 +19,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 public class MyPageActivity extends AppCompatActivity implements View.OnClickListener {
@@ -35,6 +37,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
     private Button button_modify_profile;
     private Button button_logout;
     private FrameLayout frameLayout_my_tracking;
+    private TextView text_my_tracking_count;
 
     private static final String TAG = "MyPage";
 
@@ -99,6 +102,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
         image_profile = findViewById(R.id.image_profile);
         button_logout = findViewById(R.id.button_logout);
         frameLayout_my_tracking = findViewById(R.id.frameLayout_my_tracking);
+        text_my_tracking_count = findViewById(R.id.text_my_tracking_count);
     }
 
     void registerListener(){
@@ -128,6 +132,20 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
         }else{
             image_profile.setImageResource(R.drawable.icon_profile);
         }
+
+        //------------나의 트래킹 글 개수보여주기----------
+        //DB에서 트래킹 게시판 리스트 가져오기
+        String url = "https://wowoutdoor.tk/tracking/tracking_select_count_query.php";
+        String parameters = "is_public=false"+"&user_id="+ AdminApplication.userMap.get("user_id");;
+        String method = "GET";
+        Log.d(TAG,"url:"+url+"?"+parameters);
+        //데이터 베이스에서 정보를 가져옴
+        List<Map> resultList = Util.httpConn(url, parameters, method);
+        int count = Integer.parseInt(resultList.get(0).get("cnt").toString());
+
+        text_my_tracking_count.setText(count+"");
+        //----------------------------------------------
+
 
     }
 
