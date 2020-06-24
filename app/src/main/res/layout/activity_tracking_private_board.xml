@@ -19,33 +19,21 @@
             android:layout_height="match_parent"
             android:tint="@color/colorBlack"
             app:srcCompat="@drawable/abc_vector_test" />
-
-        <ImageView
-            android:id="@+id/image_delete"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="175dp"
-            android:layout_marginEnd="175dp"
-            android:tint="@color/colorBlack"
-            app:srcCompat="@drawable/icon_cancel" />
-
-        <ImageView
-            android:id="@+id/image_check"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="351dp"
-            android:tint="@color/colorBlack"
-            app:srcCompat="@drawable/icon_check" />
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/map_view"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:padding="10dp"
-        app:layout_constraintTop_toBottomOf="@id/relativeLayout"/>
+        android:layout_height="0dp"
+        android:layout_margin="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayout"
+        tools:layout_editor_absoluteX="10dp">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_tracking_board"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            tools:layout_editor_absoluteX="10dp" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,6 +34,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
     private ImageView image_profile;
     private Button button_modify_profile;
     private Button button_logout;
+    private FrameLayout frameLayout_my_tracking;
 
     private static final String TAG = "MyPage";
 
@@ -82,24 +84,28 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                         }
                     });
             dialog.show();
+        //나의 트래킹 리스트 클릭
+        }else if(v.getId() == R.id.frameLayout_my_tracking){
+            intent = new Intent(this, TrackingBoardPrivateActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); //연속으로 2번 눌러도 activity가 2개 생성되지 않도록 하기위해서 사용.
+            startActivity(intent);
         }
     }
 
     void initializeView(){
         navView = findViewById(R.id.nav_view);
-
         text_user_name = findViewById(R.id.text_user_name);
         button_modify_profile = findViewById(R.id.button_modify_profile);
         image_profile = findViewById(R.id.image_profile);
         button_logout = findViewById(R.id.button_logout);
+        frameLayout_my_tracking = findViewById(R.id.frameLayout_my_tracking);
     }
 
     void registerListener(){
         navView.setOnNavigationItemSelectedListener(OnNavigationItemSelectedListener);
-
         button_modify_profile.setOnClickListener(this);
         button_logout.setOnClickListener(this);
-
+        frameLayout_my_tracking.setOnClickListener(this);
     }
 
     @Override

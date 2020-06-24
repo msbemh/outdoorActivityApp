@@ -3,15 +3,15 @@ package com.action.outdooractivityapp.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.RVTrackingBoardAdapter;
 import com.action.outdooractivityapp.util.Util;
@@ -20,9 +20,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.List;
 import java.util.Map;
 
-public class TrackingBoardActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class TrackingBoardPrivateActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, View.OnClickListener {
 
-    private static final String TAG = "TrackingBoardActivity";
+    private static final String TAG = "TrackingBoardPrivate";
     private Intent intent;
     private BottomNavigationView navView;
 
@@ -33,10 +33,12 @@ public class TrackingBoardActivity extends AppCompatActivity implements SwipeRef
 
     private List<Map> trackingList;
 
+    private ImageView image_back;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tracking_board);
+        setContentView(R.layout.activity_tracking_private_board);
 
         initializeView();
 
@@ -48,11 +50,12 @@ public class TrackingBoardActivity extends AppCompatActivity implements SwipeRef
     void initializeView(){
         navView = findViewById(R.id.nav_view);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        image_back = findViewById(R.id.image_back);
     }
 
     void registerListener(){
-        navView.setOnNavigationItemSelectedListener(OnNavigationItemSelectedListener);
         swipeRefreshLayout.setOnRefreshListener(this);
+        image_back.setOnClickListener(this);
     }
 
     void createApplyRecyclerview(){
@@ -68,7 +71,7 @@ public class TrackingBoardActivity extends AppCompatActivity implements SwipeRef
 
         //DB에서 트래킹 게시판 리스트 가져오기
         String url = "https://wowoutdoor.tk/tracking/tracking_select_query.php";
-        String parameters = "is_public=true";
+        String parameters = "is_public=false"+"&user_id="+AdminApplication.userMap.get("user_id");
         String method = "GET";
 
         //데이터 베이스에서 정보를 가져옴
@@ -87,7 +90,7 @@ public class TrackingBoardActivity extends AppCompatActivity implements SwipeRef
 
         //DB에서 트래킹 게시판 리스트 가져오기
         String url = "https://wowoutdoor.tk/tracking/tracking_select_query.php";
-        String parameters = "is_public=true";
+        String parameters = "is_public=false"+"&user_id="+ AdminApplication.userMap.get("user_id");;
         String method = "GET";
 
         //데이터 베이스에서 정보를 가져옴
@@ -100,45 +103,8 @@ public class TrackingBoardActivity extends AppCompatActivity implements SwipeRef
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG,"트래킹게시판 onResume()");
-        /*하단 네비게이션 checked표시*/
-        navView.getMenu().getItem(1).setChecked(true);
-
+        Log.d(TAG,"트래킹 개인 게시판 onResume()");
     }
-
-    /*하단 네비게이션바 Listener*/
-    private BottomNavigationView.OnNavigationItemSelectedListener OnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()){
-                /*홈 선택*/
-                case R.id.navigation_home:
-                    intent = new Intent(TrackingBoardActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
-                    startActivity(intent);
-                    return true;
-                /*트래킹 게시판 선택*/
-                case R.id.navigation_tracking_board:
-                    intent = new Intent(TrackingBoardActivity.this, TrackingBoardActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
-                    startActivity(intent);
-                    return true;
-                /*함께하기 선택*/
-                case R.id.navigation_together:
-                    intent = new Intent(TrackingBoardActivity.this, TogetherActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
-                    startActivity(intent);
-                    return true;
-                /*마이페이지이 선택*/
-                case R.id.navigation_my:
-                    intent = new Intent(TrackingBoardActivity.this, MyPageActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
-                    startActivity(intent);
-                    return true;
-            }
-            return false;
-        }
-    };
 
     @Override
     public void onRefresh() {
@@ -146,7 +112,7 @@ public class TrackingBoardActivity extends AppCompatActivity implements SwipeRef
 
         //DB에서 트래킹 게시판 리스트 가져오기
         String url = "https://wowoutdoor.tk/tracking/tracking_select_query.php";
-        String parameters = "is_public=true";
+        String parameters = "is_public=false"+"&user_id="+ AdminApplication.userMap.get("user_id");
         String method = "GET";
 
         //데이터 베이스에서 정보를 가져옴
@@ -157,5 +123,13 @@ public class TrackingBoardActivity extends AppCompatActivity implements SwipeRef
 
         //리프레쉬 모양 없애기
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void onClick(View v) {
+        //뒤로가기 클릭
+        if(v.getId() == R.id.image_back){
+            finish();
+        }
     }
 }

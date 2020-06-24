@@ -3,7 +3,6 @@ package com.action.outdooractivityapp.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,17 +11,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.action.outdooractivityapp.R;
-import com.action.outdooractivityapp.activity.RoomChatActivity;
 import com.action.outdooractivityapp.activity.TrackingBoardViewActivity;
 import com.action.outdooractivityapp.urlConnection.BringImageFile;
-
-import net.daum.mf.map.api.CameraUpdateFactory;
-import net.daum.mf.map.api.MapPoint;
-import net.daum.mf.map.api.MapView;
 
 import java.util.List;
 import java.util.Map;
@@ -52,10 +45,11 @@ public class RVTrackingBoardAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         Log.d(TAG,"onBindViewHolder");
         //데이터 추출
         String title = items.get(position).get("title").toString();
-        String user_id = items.get(position).get("user_id").toString();
+        final String user_id = items.get(position).get("user_id").toString();
         String nick_name = items.get(position).get("nick_name").toString();
 //        String location = items.get(position).get("location").toString();
         String create_date = items.get(position).get("create_date").toString();
+//        final boolean is_public = Boolean.parseBoolean(items.get(position).get("is_public").toString());
         final int tracking_no = Integer.parseInt(items.get(position).get("tracking_no").toString());
 
         //데이터 셋팅
@@ -93,6 +87,7 @@ public class RVTrackingBoardAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             public void onClick(View v) {
                 intent = new Intent(context, TrackingBoardViewActivity.class);
                 intent.putExtra("tracking_no", tracking_no);
+                intent.putExtra("user_id", user_id);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); //연속으로 2번 눌러도 activity가 2개 생성되지 않도록 하기위해서 사용.
                 context.startActivity(intent);
             }
