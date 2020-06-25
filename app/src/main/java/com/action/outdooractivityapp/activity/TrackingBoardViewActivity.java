@@ -3,9 +3,11 @@ package com.action.outdooractivityapp.activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.urlConnection.BringImageFile;
 import com.action.outdooractivityapp.util.Util;
 
 import net.daum.mf.map.api.CameraUpdateFactory;
@@ -52,6 +55,9 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
     private TextView textView_move_time;
     private TextView textView_average_speed;
     private TextView textView_difficult;
+    private ImageView image_profile;
+    private TextView textView_user_id;
+    private TextView textView_nick_name;
 
     public MapView mapView;
     private ViewGroup mapViewContainer;
@@ -109,6 +115,9 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
         textView_move_time = findViewById(R.id.textView_move_time);
         textView_average_speed = findViewById(R.id.textView_average_speed);
         textView_difficult = findViewById(R.id.textView_difficult);
+        image_profile = findViewById(R.id.image_profile);
+        textView_user_id = findViewById(R.id.textView_user_id);
+        textView_nick_name = findViewById(R.id.textView_nick_name);
         //카카오지도
         mapView = new MapView(this);
         mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
@@ -195,6 +204,11 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG,"트래킹 Board 뷰 onDestroy()");
@@ -252,28 +266,55 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
         MapPoint startMapPoint = convertMapToMapPoint(trackingLocationList.get(0));
         int size = trackingLocationList.size();
         MapPoint endMapPoint = convertMapToMapPoint(trackingLocationList.get(size-1));
-        String start_date = trackingList.get(0).get("trans_start_date").toString();
-        String end_date = trackingList.get(0).get("trans_end_date").toString();
+        String startDate = trackingList.get(0).get("trans_start_date").toString();
+        String endDate = trackingList.get(0).get("trans_end_date").toString();
         double distance = Double.parseDouble(trackingList.get(0).get("trans_distance").toString());
         double speed = Double.parseDouble(trackingList.get(0).get("speed").toString());
-        int taken_second = Integer.parseInt(trackingList.get(0).get("taken_second").toString());
+        int takenSecond = Integer.parseInt(trackingList.get(0).get("taken_second").toString());
         String difficult = trackingList.get(0).get("difficult").toString();
         difficult = convertEnglishToHangul(difficult);
+        String profileImage = trackingList.get(0).get("profile_image").toString();
+        String writer = trackingList.get(0).get("user_id").toString();
+        String nickName = trackingList.get(0).get("nick_name").toString();
 
         //걸린초 => 00:00:00 형식으로 변형
-        String time = convertSecondToTime(taken_second);
+        String time = convertSecondToTime(takenSecond);
 
         //시작위치 역 Geo코딩
         MapReverseGeoCoder reverseGeoCoder = new MapReverseGeoCoder(getString(R.string.kakao_map_key), startMapPoint, this, this);
         reverseGeoCoder.startFindingAddress();
 
+        //------이미지 파일 서버에서 Bitmap으로 가져오기-------
+        Log.d(TAG,"profileImage:"+profileImage);
+        if(!"null".equals(profileImage) && !TextUtils.isEmpty(profileImage) && profileImage != null){
+            BringImageFile bringImageFile = new BringImageFile(profileImage);
+
+            bringImageFile.start();
+
+            try{
+                bringImageFile.join();
+                //이미지 불러오기 완료되면 가져오기
+                Bitmap bitmap = bringImageFile.getBitmap();
+                image_profile.setImageBitmap(bitmap);
+            }
+            catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }else{
+            //기본 프로필 이미지 보여주기
+            image_profile.setImageResource(R.drawable.icon_profile_invert);
+        }
+        //----------------------------------------------------
+
         //------------------데이터 세팅-------------------------
         textView_title.setText(title);
-        textView_start_time.setText(start_date);
+        textView_start_time.setText(startDate);
         textView_distance.setText(distance+"km");
         textView_move_time.setText(time);
         textView_average_speed.setText(speed+"km/h");
         textView_difficult.setText(difficult);
+        textView_user_id.setText(writer);
+        textView_nick_name.setText(nickName);
         //-------------------------------------------------------
     }
 

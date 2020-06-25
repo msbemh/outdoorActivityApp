@@ -165,6 +165,41 @@
                 android:text="쉬움"
                 android:textColor="@color/colorBlack"
                 android:textSize="15sp" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/image_profile"
+                android:layout_width="64dp"
+                android:layout_height="53dp"
+                android:layout_marginStart="80dp"
+                android:layout_toEndOf="@id/textView_distance"
+                android:layout_alignTop="@id/textView_distance"
+                android:src="@drawable/icon_profile_invert" />
+
+            <TextView
+                android:id="@+id/textView_user_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/image_profile"
+                android:layout_alignStart="@id/image_profile"
+                android:layout_alignEnd="@id/image_profile"
+                android:gravity="center_horizontal"
+                android:text="아이디"
+                android:textColor="@color/colorBlack"
+                android:layout_marginTop="5dp"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/textView_nick_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textView_user_id"
+                android:layout_alignStart="@id/textView_user_id"
+                android:layout_alignEnd="@id/textView_user_id"
+                android:gravity="center_horizontal"
+                android:text="닉네임"
+                android:textColor="@color/colorBlack"
+                android:textSize="15sp" />
+
         </RelativeLayout>
     </LinearLayout>
 
