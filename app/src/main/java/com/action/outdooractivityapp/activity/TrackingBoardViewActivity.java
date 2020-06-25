@@ -257,6 +257,8 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
         double distance = Double.parseDouble(trackingList.get(0).get("trans_distance").toString());
         double speed = Double.parseDouble(trackingList.get(0).get("speed").toString());
         int taken_second = Integer.parseInt(trackingList.get(0).get("taken_second").toString());
+        String difficult = trackingList.get(0).get("difficult").toString();
+        difficult = convertEnglishToHangul(difficult);
 
         //걸린초 => 00:00:00 형식으로 변형
         String time = convertSecondToTime(taken_second);
@@ -271,7 +273,7 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
         textView_distance.setText(distance+"km");
         textView_move_time.setText(time);
         textView_average_speed.setText(speed+"km/h");
-//        textView_difficult.setText(title);
+        textView_difficult.setText(difficult);
         //-------------------------------------------------------
     }
 
@@ -314,5 +316,16 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
     @Override
     public void onReverseGeoCoderFailedToFindAddress(MapReverseGeoCoder mapReverseGeoCoder) {
         // 호출에 실패한 경우.
+    }
+
+    String convertEnglishToHangul(String difficult){
+        if("easy".equals(difficult)){
+            return "쉬움";
+        }else if("usual".equals(difficult)){
+            return "보통";
+        }else if("hard".equals(difficult)){
+            return "어려움";
+        }
+        return "없음";
     }
 }

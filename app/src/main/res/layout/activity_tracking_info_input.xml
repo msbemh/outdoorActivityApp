@@ -45,7 +45,7 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="30sp"
+            android:textSize="25sp"
             android:layout_marginTop="10dp"
             android:textColor="@color/colorBlack"
             android:text="제목" />
@@ -61,7 +61,7 @@
             android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="30sp"
+            android:textSize="25sp"
             android:textColor="@color/colorBlack"
             android:layout_marginTop="10dp"
             android:text="공개여부" />
@@ -85,10 +85,44 @@
         </RadioGroup>
 
         <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="25sp"
+            android:textColor="@color/colorBlack"
+            android:layout_marginTop="10dp"
+            android:text="난이도" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup_difficult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <RadioButton
+                android:id="@+id/radioButton_easy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="쉬움" />
+
+            <RadioButton
+                android:id="@+id/radioButton_usual"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="보통" />
+
+            <RadioButton
+                android:id="@+id/radioButton_hard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="어려움" />
+        </RadioGroup>
+
+        <TextView
             android:id="@+id/textView3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="30sp"
+            android:textSize="25sp"
             android:textColor="@color/colorBlack"
             android:layout_marginTop="10dp"
             android:text="섬네일 사진" />
@@ -97,7 +131,7 @@
             android:id="@+id/imageView_thumbnail"
             android:padding="10dp"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="280dp"
             android:background="@drawable/border"
             app:srcCompat="@drawable/icon_picture"/>
 

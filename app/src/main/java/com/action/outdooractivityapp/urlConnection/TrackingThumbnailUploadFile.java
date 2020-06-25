@@ -59,6 +59,7 @@ public class TrackingThumbnailUploadFile extends AsyncTask<String, String, Strin
     private double distance;
     private String startDate;
     private String endDate;
+    private String difficult;
 
     public TrackingThumbnailUploadFile(Context context){
         this.context = context;
@@ -93,6 +94,10 @@ public class TrackingThumbnailUploadFile extends AsyncTask<String, String, Strin
 
     public void setDistance(double distance){
         this.distance = distance;
+    }
+
+    public void setDifficult(String difficult){
+        this.difficult = difficult;
     }
 
     //AsyncTask 동작되기 전에 실행
@@ -232,7 +237,7 @@ public class TrackingThumbnailUploadFile extends AsyncTask<String, String, Strin
         String url = "https://wowoutdoor.tk/tracking/tracking_insert_query.php";
         String parameters = "user_id="+ AdminApplication.userMap.get("user_id")+"&nick_name="+AdminApplication.userMap.get("nick_name")
                 +"&location="+location+"&title="+title+"&is_public="+is_public+"&thumbnail_image_route="+currentPhotoPath
-                +"&distance="+distance+"&start_date="+startDate+"&end_date="+endDate;
+                +"&distance="+distance+"&start_date="+startDate+"&end_date="+endDate+"&difficult="+difficult;
         String method = "POST";
         Log.d(TAG,"url:"+url+"?"+parameters);
         Log.d(TAG,"parameters:"+parameters);

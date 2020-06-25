@@ -35,6 +35,7 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
     private Intent intent;
     private EditText editText_title;
     private RadioGroup radioGroup_public_private;
+    private RadioGroup radioGroup_difficult;
     private ImageView imageView_thumbnail;
     private ImageView image_back;
     private ImageView image_check;
@@ -45,6 +46,8 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
     private String endDate;
     private Bundle extras;
     private String thumbnail_image_route;
+    private String difficult;
+
 
     private final int IMAGE_REQUEST_CODE = 0;
     private String flag="";
@@ -82,11 +85,11 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
         imageView_thumbnail = findViewById(R.id.imageView_thumbnail);
         image_back = findViewById(R.id.image_back);
         image_check = findViewById(R.id.image_check);
+        radioGroup_difficult = findViewById(R.id.radioGroup_difficult);
     }
 
     void registerListener(){
         editText_title.setOnClickListener(this);
-        radioGroup_public_private.setOnClickListener(this);
         imageView_thumbnail.setOnClickListener(this);
         image_back.setOnClickListener(this);
         image_check.setOnClickListener(this);
@@ -111,22 +114,35 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
                 return;
             }
 
-            //라디오 그룹 선택된 ID가져오기
-            int selected_radio_id = radioGroup_public_private.getCheckedRadioButtonId();
-            Log.d(TAG,"selected_radio_id:"+selected_radio_id);
+            //라디오 그룹 선택된 ID가져오기 (공개/비공개)
+            int selected_is_public_radio_id = radioGroup_public_private.getCheckedRadioButtonId();
+            Log.d(TAG,"selected_is_public_radio_id:"+selected_is_public_radio_id);
 
             //라디오 그룹 체크했는지 검사 (아무것도 체크하지 않으면 -1임)
-            if(selected_radio_id == -1){
+            if(selected_is_public_radio_id == -1){
                 Util.toastText(this, "공개여부를 선택해주세요.");
                 return;
             }
 
             //선택된 라디오 Text에 따라서 is_public(true,false) 정하기
-            RadioButton radioButton = findViewById(selected_radio_id);
+            RadioButton radioButton = findViewById(selected_is_public_radio_id);
             if("공개".equals(radioButton.getText().toString())){
                 is_public = true;
             }else if("비공개".equals(radioButton.getText().toString())){
                 is_public = false;
+            }
+
+            //라디오 그룹 선택된 ID가져오기 (난이도)
+            int selected_dfficult_radio_id = radioGroup_difficult.getCheckedRadioButtonId();
+
+            //선택된 라디오 Text에 따라서 difficult(쉬움=>easy, 보통=>usual, 어려움=>hard)정하기
+            radioButton = findViewById(selected_dfficult_radio_id);
+            if("쉬움".equals(radioButton.getText().toString())){
+                difficult = "easy";
+            }else if("보통".equals(radioButton.getText().toString())){
+                difficult = "usual";
+            }else if("어려움".equals(radioButton.getText().toString())){
+                difficult = "hard";
             }
 
             //파일 업로드 (파일경로가 존재할경우에만)
@@ -141,7 +157,7 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
                 String url = "https://wowoutdoor.tk/tracking/tracking_insert_query.php";
                 String parameters = "user_id="+ AdminApplication.userMap.get("user_id")+"&nick_name="+AdminApplication.userMap.get("nick_name")
                         +"&location="+location+"&title="+title+"&is_public="+is_public+"&thumbnail_image_route="+currentPhotoPath
-                        +"&distance="+distance+"&start_date="+startDate+"&end_date="+endDate;
+                        +"&distance="+distance+"&start_date="+startDate+"&end_date="+endDate+"&difficult="+difficult;
                 String method = "POST";
                 Log.d(TAG,"url:"+url+"?"+parameters);
 
@@ -268,6 +284,7 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
             trackingThumbnailUploadFile.setStartDate(startDate);
             trackingThumbnailUploadFile.setEndDate(endDate);
             trackingThumbnailUploadFile.setDistance(distance);
+            trackingThumbnailUploadFile.setDifficult(difficult);
             trackingThumbnailUploadFile.execute(url);
         }catch (Exception e){
             e.printStackTrace();
