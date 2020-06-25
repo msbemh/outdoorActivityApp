@@ -49,4 +49,123 @@
         android:padding="10dp"
         app:layout_constraintTop_toBottomOf="@id/relativeLayout"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/map_view"
+        tools:layout_editor_absoluteX="10dp">
+
+        <TextView
+            android:id="@+id/textView_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="제목"
+            android:textColor="@color/colorBlack"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            tools:layout_editor_absoluteX="40dp" />
+        <TextView
+            android:id="@+id/textView_start_location"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="대한민국 서울 특별시"
+            android:textColor="@color/colorBlack"
+            android:textSize="25sp" />
+        <TextView
+            android:id="@+id/textView_start_time"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2020.6.23. 7:01 PM"
+            android:textColor="@color/colorBlack"
+            android:textSize="25sp" />
+        <RelativeLayout
+            android:id="@+id/relativeLayout2"
+            android:layout_width="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            <TextView
+                android:id="@+id/textView"
+                android:layout_marginTop="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="거리"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_marginTop="5dp"
+                android:layout_below="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="이동시간"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_marginTop="5dp"
+                android:layout_below="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="평균 속도"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_marginTop="5dp"
+                android:layout_below="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="난이도"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/textView_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="100dp"
+                android:layout_toRightOf="@id/textView"
+                android:text="0.1km"
+                android:textColor="@color/colorBlack"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/textView_move_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_below="@id/textView_distance"
+                android:layout_alignEnd="@id/textView_distance"
+                android:text="00:00:09"
+                android:textColor="@color/colorBlack"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/textView_average_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_below="@id/textView_move_time"
+                android:layout_alignEnd="@id/textView_move_time"
+                android:text="59.2km/h"
+                android:textColor="@color/colorBlack"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/textView_difficult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_below="@id/textView_average_speed"
+                android:layout_alignEnd="@id/textView_average_speed"
+                android:text="쉬움"
+                android:textColor="@color/colorBlack"
+                android:textSize="15sp" />
+        </RelativeLayout>
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

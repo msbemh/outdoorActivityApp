@@ -56,6 +56,9 @@ public class TrackingThumbnailUploadFile extends AsyncTask<String, String, Strin
     private String title;
     private boolean is_public;
     private String currentPhotoPath;
+    private double distance;
+    private String startDate;
+    private String endDate;
 
     public TrackingThumbnailUploadFile(Context context){
         this.context = context;
@@ -78,6 +81,18 @@ public class TrackingThumbnailUploadFile extends AsyncTask<String, String, Strin
 
     public void setIsPublic(boolean is_public){
         this.is_public = is_public;
+    }
+
+    public void setStartDate(String startDate){
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(String endDate){
+        this.endDate =endDate;
+    }
+
+    public void setDistance(double distance){
+        this.distance = distance;
     }
 
     //AsyncTask 동작되기 전에 실행
@@ -216,8 +231,10 @@ public class TrackingThumbnailUploadFile extends AsyncTask<String, String, Strin
         //url, paramters, method정보가 필요함.
         String url = "https://wowoutdoor.tk/tracking/tracking_insert_query.php";
         String parameters = "user_id="+ AdminApplication.userMap.get("user_id")+"&nick_name="+AdminApplication.userMap.get("nick_name")
-                +"&location="+location+"&title="+title+"&is_public="+is_public+"&thumbnail_image_route="+currentPhotoPath;
+                +"&location="+location+"&title="+title+"&is_public="+is_public+"&thumbnail_image_route="+currentPhotoPath
+                +"&distance="+distance+"&start_date="+startDate+"&end_date="+endDate;
         String method = "POST";
+        Log.d(TAG,"url:"+url+"?"+parameters);
         Log.d(TAG,"parameters:"+parameters);
 
         //데이터 베이스에서 정보를 가져옴

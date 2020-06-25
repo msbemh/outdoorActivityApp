@@ -27,10 +27,11 @@
         <activity android:name=".activity.TrackingInfoInputActivity"></activity>
         <activity android:name=".activity.TrackingBoardViewActivity" />
         <activity android:name=".activity.TrackingBoardActivity" />
-        <activity android:name=".activity.LocationSharingMap" /> <!-- 카카오맵 키 -->
+        <activity android:name=".activity.LocationSharingMap" />
+        <!-- 카카오맵 키 -->
         <meta-data
             android:name="com.kakao.sdk.AppKey"
-            android:value="3bfa41e8efe4a762addb8f916383517f" />
+            android:value="@string/kakao_map_key" />
 
         <activity android:name=".activity.RoomMicrophoneActivity" />
         <activity

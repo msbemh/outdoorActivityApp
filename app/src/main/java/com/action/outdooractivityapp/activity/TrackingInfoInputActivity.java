@@ -25,6 +25,7 @@ import com.action.outdooractivityapp.urlConnection.TrackingThumbnailUploadFile;
 import com.action.outdooractivityapp.util.Util;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,9 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
     private ImageView image_check;
 
     private String location;
+    private double distance;
+    private String startDate;
+    private String endDate;
     private Bundle extras;
     private String thumbnail_image_route;
 
@@ -63,7 +67,13 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
         /*data 받아오기*/
         extras = getIntent().getExtras();
         location = extras.getString("location");
+        distance = extras.getDouble("distance");
+        startDate = extras.getString("startDate");
+        endDate = extras.getString("endDate");
         Log.d(TAG, "location:"+location);
+        Log.d(TAG, "distance:"+distance);
+        Log.d(TAG, "startDate:"+startDate);
+        Log.d(TAG, "endDate:"+endDate);
     }
 
     void initializeView(){
@@ -130,9 +140,10 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
                 //url, paramters, method정보가 필요함.
                 String url = "https://wowoutdoor.tk/tracking/tracking_insert_query.php";
                 String parameters = "user_id="+ AdminApplication.userMap.get("user_id")+"&nick_name="+AdminApplication.userMap.get("nick_name")
-                        +"&location="+location+"&title="+title+"&is_public="+is_public+"&thumbnail_image_route="+currentPhotoPath;
+                        +"&location="+location+"&title="+title+"&is_public="+is_public+"&thumbnail_image_route="+currentPhotoPath
+                        +"&distance="+distance+"&start_date="+startDate+"&end_date="+endDate;
                 String method = "POST";
-                Log.d(TAG,"parameters:"+parameters);
+                Log.d(TAG,"url:"+url+"?"+parameters);
 
                 //데이터 베이스에서 정보를 가져옴
                 List<Map> resultList = Util.httpConn(url, parameters, method);
@@ -254,6 +265,9 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
             trackingThumbnailUploadFile.setLocation(location);
             trackingThumbnailUploadFile.setTitle(title);
             trackingThumbnailUploadFile.setIsPublic(is_public);
+            trackingThumbnailUploadFile.setStartDate(startDate);
+            trackingThumbnailUploadFile.setEndDate(endDate);
+            trackingThumbnailUploadFile.setDistance(distance);
             trackingThumbnailUploadFile.execute(url);
         }catch (Exception e){
             e.printStackTrace();

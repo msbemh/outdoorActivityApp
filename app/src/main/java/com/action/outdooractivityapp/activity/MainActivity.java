@@ -49,7 +49,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,10 +73,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static boolean isMapReset = false;
     private String trackingStatus = "end";
 
-    //
+    //트래킹 위치 정보
     private List<Map> trackingList = new ArrayList<Map>();
+    //트래킹 거리 정보
+    private List<Double> trackingDistanceList = new ArrayList<Double>();
     private Location currentLocation;
     private Location startLocation;
+    private Date startDate;
+    private Date endDate;
 
     private MapPolyline polyline;
 
@@ -277,6 +283,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //시작위치 저장
                 startLocation = currentLocation;
 
+                //시작시간 저장
+                startDate = new Date();
+                Log.d(TAG,"startDate:"+startDate);
+
                 //현재위치 정보
                 double latitude = currentLocation.getLatitude();
                 double longitude = currentLocation.getLongitude();
@@ -347,20 +357,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d(TAG,"[리스너]longitude:"+longitude);
                 Log.d(TAG,"[리스너]latitude:"+latitude);
                 Log.d(TAG,"[리스너]accuracy:"+accuracy);
+
+                //현재위치 갱신
                 currentLocation = location;
+
+                //맵 다시 생성할때를 대비해서 위치정보 저장
+                Map map = new HashMap();
+                map.put("latitude",latitude);
+                map.put("longitude",longitude);
+                trackingList.add(map);
+                Log.d(TAG, "trackingList.size():"+trackingList.size());
+
 
                 //트랙킹 중일 때에만 리스트에추가하고 경로생성함.
                 if("start".equals(trackingStatus)) {
 
-                    //맵 다시 생서할때를 대비해서 위치정보 저장
-                    Map map = new HashMap();
-                    map.put("latitude",latitude);
-                    map.put("longitude",longitude);
-                    trackingList.add(map);
-                    Log.d(TAG, "trackingList.size():"+trackingList.size());
-
                     //경로 생성
                     createRoutine();
+
+                    //거리 저장
+                    createDistance();
                 }
 
             } else {
@@ -377,6 +393,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onStatusChanged(String provider, int status, Bundle extras) {}
     };
 
+    //거리 polyLine생성
     void createRoutine(){
         Log.d(TAG, "createRoutine()동작");
         Log.d(TAG, "!!!trackingList.size():"+trackingList.size());
@@ -414,7 +431,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //모든 경로 다시 생성
     void createAllRoutine(){
-
         //polyLine 생성
         polyline = new MapPolyline();
         polyline.setTag(1);
@@ -441,7 +457,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             MapPoint mapPoint = convertLocationToMapPoint(currentLocation);
             mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
         }
+    }
 
+    //이동 거리 추가
+    void createDistance(){
+        if(trackingList.size() > 1){
+            //현재위치와 바로전 위치 가져오기
+            int size = trackingList.size();
+            double before_latitude = Double.parseDouble(trackingList.get(size-2).get("latitude").toString());
+            double before_longitude = Double.parseDouble(trackingList.get(size-2).get("longitude").toString());
+            double current_latitude = Double.parseDouble(trackingList.get(size-1).get("latitude").toString());
+            double current_longitude = Double.parseDouble(trackingList.get(size-1).get("longitude").toString());
+            double distance = Util.distanceByHaversine(before_latitude,before_longitude,current_latitude,current_longitude);
+            Log.d(TAG,"distance:"+distance);
+            trackingDistanceList.add(distance);
+        }
     }
 
     //초기화
@@ -454,6 +484,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startLocation = null;
         //모든 마커 삭제
         mapView.removeAllPOIItems();
+        //시작 시간 초기화
+        startDate = null;
+        //끝 시간 초기화
+        endDate = null;
+        //이동거리 초기화
+        trackingDistanceList.clear();
 
     }
 
@@ -494,22 +530,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //트래킹 정보 List<Map> => Json으로 변환
-                        JSONArray jsonArray = new JSONArray();
-                        for(Map mapItem : trackingList){
-                            try {
-                                JSONObject jsonObject = new JSONObject();
-                                jsonObject.put("longitude", mapItem.get("longitude"));
-                                jsonObject.put("latitude", mapItem.get("latitude"));
-                                jsonArray.put(jsonObject);
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
+                        String location = Util.convertListMapToJsonString(trackingList);
+                        Log.d(TAG,"location:"+location);
+
+                        //이동거리 계산
+                        double distance = 0;
+                        for(double distanceItem : trackingDistanceList){
+                            distance += distanceItem;
                         }
-                        String location = jsonArray.toString();
+
+                        //끝 시간 생성
+                        endDate = new Date();
+                        Log.d(TAG,"endDate:"+endDate);
+
+                        //Date => String(yyyy-MM-dd HH:mm:ss)으로 변환하여 보내주기
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
                         //트래킹 정보를 포함시켜서 저장 Activity로 이동
                         intent = new Intent(MainActivity.this, TrackingInfoInputActivity.class);
                         intent.putExtra("location",location);
+                        intent.putExtra("startDate",format.format(startDate));
+                        intent.putExtra("endDate",format.format(endDate));
+                        intent.putExtra("distance",distance);
                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
                         startActivity(intent);
 

@@ -248,4 +248,43 @@ public class Util {
         Toast.makeText(context.getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }
 
+    //지구의 2위치의 실제거리 구하기(하버사인 공식 이용) [km]
+    public static double distanceByHaversine(double x1, double y1, double x2, double y2) {
+        double distance;
+        double radius = 6371; // 지구 반지름(km)
+        double toRadian = Math.PI / 180;
+
+        double deltaLatitude = Math.abs(x1 - x2) * toRadian;
+        double deltaLongitude = Math.abs(y1 - y2) * toRadian;
+
+        double sinDeltaLat = Math.sin(deltaLatitude / 2);
+        double sinDeltaLng = Math.sin(deltaLongitude / 2);
+        double squareRoot = Math.sqrt(
+                sinDeltaLat * sinDeltaLat +
+                        Math.cos(x1 * toRadian) * Math.cos(x2 * toRadian) * sinDeltaLng * sinDeltaLng);
+        distance = 2 * radius * Math.asin(squareRoot);
+        return distance;
+    }
+
+    public static String convertListMapToJsonString(List<Map> listMap){
+        //List<Map> => Json으로 변환
+        JSONArray jsonArray = new JSONArray();
+        for(Map mapItem : listMap){
+            try {
+                JSONObject jsonObject = new JSONObject();
+                //map을 jsonObject로 변환
+                Iterator<String> keys = mapItem.keySet().iterator();
+                while (keys.hasNext()){
+                    String key = keys.next();
+                    jsonObject.put(key, mapItem.get(key));
+                    jsonArray.put(jsonObject);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        String jsonString = jsonArray.toString();
+        return jsonString;
+    }
+
 }
