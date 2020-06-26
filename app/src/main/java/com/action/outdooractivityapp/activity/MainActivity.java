@@ -190,10 +190,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if("start".equals(trackingStatus)){
                 //트래킹의 photoList에 저장
                 if(currentPhotoPath != null){
+                    double latitude = currentLocation.getLatitude();
+                    double longitude = currentLocation.getLongitude();
                     Map map = new HashMap();
                     map.put("photo_image", currentPhotoPath);
-                    map.put("latitude",currentLocation.getLatitude());
-                    map.put("longitude",currentLocation.getLongitude());
+                    map.put("latitude", latitude);
+                    map.put("longitude", longitude);
                     trackingPhotoList.add(map);
                 }
                 //초기화
@@ -311,6 +313,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(startLocation != null){
             startMarker(startLocation);
         }
+        //카메라 마커 지도에 표시
+        createCameraMarkerAll();
     }
 
     @Override
@@ -570,6 +574,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             MapPoint mapPoint = convertLocationToMapPoint(currentLocation);
             mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
         }
+    }
+
+    //카메라 마커 지도에 표시 (카메라창 갔다오면 OnStop => OnRestart 돼서 OnRestart에서 불러옴)
+    void createCameraMarkerAll(){
+        for(Map mapItem : trackingPhotoList){
+            double latitude = Double.parseDouble(mapItem.get("latitude").toString());
+            double longitude = Double.parseDouble(mapItem.get("longitude").toString());
+
+            MapPOIItem customMarker = new MapPOIItem();
+            customMarker.setItemName("사진");
+            customMarker.setTag(1);
+            MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(latitude, longitude);
+            customMarker.setMapPoint(mapPoint);
+            customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 마커타입을 커스텀 마커로 지정.
+            customMarker.setCustomImageResourceId(R.drawable.icon_camera_marker); // 마커 이미지.
+            customMarker.setCustomImageAutoscale(false); // hdpi, xhdpi 등 안드로이드 플랫폼의 스케일을 사용할 경우 지도 라이브러리의 스케일 기능을 꺼줌.
+            customMarker.setCustomImageAnchor(0.5f, 1.0f); // 마커 이미지중 기준이 되는 위치(앵커포인트) 지정 - 마커 이미지 좌측 상단 기준 x(0.0f ~ 1.0f), y(0.0f ~ 1.0f) 값.
+
+            mapView.addPOIItem(customMarker);
+
+        }
+
     }
 
     //이동 거리 추가
