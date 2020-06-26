@@ -20,7 +20,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public class UploadFile extends AsyncTask<String, String, String> {
+public class ProfileUploadFile extends AsyncTask<String, String, String> {
 
     Context context;
     ProgressDialog progressDialog;
@@ -50,9 +50,9 @@ public class UploadFile extends AsyncTask<String, String, String> {
     int maxBufferSize = 1024;
     int serverResponseCode;
 
-    private static final String TAG = "UploadFile";
+    private static final String TAG = "profileUploadFile";
 
-    public UploadFile(Context context){
+    public ProfileUploadFile(Context context){
         this.context = context;
     }
 

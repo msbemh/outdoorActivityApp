@@ -15,6 +15,7 @@ import com.action.outdooractivityapp.urlConnection.URLConnector;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Comment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -285,6 +286,39 @@ public class Util {
         }
         String jsonString = jsonArray.toString();
         return jsonString;
+    }
+
+    public static List<Map> convertJsonStringToListMap(String jsonString){
+        List<Map> resultList = new ArrayList<Map>();
+        try{
+            //String => JSONArray로 변경
+            JSONArray jsonArray;
+            // jsonString이 ""일때의 예외처리
+            if(jsonString.length()>0){
+                jsonArray = new JSONArray(jsonString);
+            }else{
+                jsonArray = new JSONArray();
+            }
+
+            //String => JSONObject로 변경
+            for(int i=0; i<jsonArray.length(); i++){
+                JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
+                //map을 jsonObject로 변환
+                Iterator<String> keys = jsonObject.keys();
+                while (keys.hasNext()){
+                    String key = keys.next();
+                    Map map = new HashMap();
+                    map.put(key,jsonObject.get(key));
+                    resultList.add(map);
+                }
+            }
+            return resultList;
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

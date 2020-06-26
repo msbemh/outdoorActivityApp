@@ -1,6 +1,5 @@
 package com.action.outdooractivityapp.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -21,11 +20,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.popup.TakingImageProfilePopup;
-import com.action.outdooractivityapp.urlConnection.TrackingThumbnailUploadFile;
+import com.action.outdooractivityapp.urlConnection.TrackingSave;
 import com.action.outdooractivityapp.util.Util;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +45,7 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
     private Bundle extras;
     private String thumbnail_image_route;
     private String difficult;
+    private String photoListInfo;
 
 
     private final int IMAGE_REQUEST_CODE = 0;
@@ -73,10 +72,12 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
         distance = extras.getDouble("distance");
         startDate = extras.getString("startDate");
         endDate = extras.getString("endDate");
+        photoListInfo = extras.getString("photoListInfo");
         Log.d(TAG, "location:"+location);
         Log.d(TAG, "distance:"+distance);
         Log.d(TAG, "startDate:"+startDate);
         Log.d(TAG, "endDate:"+endDate);
+        Log.d(TAG, "photoListInfo:"+photoListInfo);
     }
 
     void initializeView(){
@@ -149,7 +150,7 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
             //이곳에서 데이터베이스에 다른 정보도 저장시킨다.
             //이곳에서 모든게 완료되면 finish시켜줌.
             if(currentPhotoPath != null){
-                trackingThumbnailUploadFile(currentPhotoPath);
+                trackingSave(currentPhotoPath);
             //업로드할 파일이 없을때
             }else{
                 //안드로이드 => http => 데이터베이스 에서 정보를 가져오기 위해서
@@ -273,19 +274,23 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
     //파일 업로드 (파일경로가 존재할경우에만)
     //이곳에서 데이터베이스에 다른 정보도 저장시킨다.
     //이곳에서 모든게 완료되면 finish시켜줌.
-    public void trackingThumbnailUploadFile(String filePath){
-        String url = "https://wowoutdoor.tk/public_upload_file.php";
+    public void trackingSave(String filePath){
+        String thumbnail_url = "https://wowoutdoor.tk/thumbnail_upload_file.php";
+        String tracking_photos_url = "https://wowoutdoor.tk/tracking_photos_upload_file.php";
         try{
-            TrackingThumbnailUploadFile trackingThumbnailUploadFile = new TrackingThumbnailUploadFile(this);
-            trackingThumbnailUploadFile.setPath(filePath);
-            trackingThumbnailUploadFile.setLocation(location);
-            trackingThumbnailUploadFile.setTitle(title);
-            trackingThumbnailUploadFile.setIsPublic(is_public);
-            trackingThumbnailUploadFile.setStartDate(startDate);
-            trackingThumbnailUploadFile.setEndDate(endDate);
-            trackingThumbnailUploadFile.setDistance(distance);
-            trackingThumbnailUploadFile.setDifficult(difficult);
-            trackingThumbnailUploadFile.execute(url);
+            TrackingSave trackingSave = new TrackingSave(this);
+            trackingSave.setLocation(location);
+            trackingSave.setTitle(title);
+            trackingSave.setIsPublic(is_public);
+            trackingSave.setStartDate(startDate);
+            trackingSave.setEndDate(endDate);
+            trackingSave.setDistance(distance);
+            trackingSave.setDifficult(difficult);
+            trackingSave.setPath(filePath);
+            trackingSave.setPhotoListInfo(photoListInfo);
+            trackingSave.setThumbnailUrl(thumbnail_url);
+            trackingSave.setTrackingPhotosUrl(tracking_photos_url);
+            trackingSave.execute();
         }catch (Exception e){
             e.printStackTrace();
         }

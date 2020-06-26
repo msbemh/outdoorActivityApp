@@ -4,16 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -21,9 +18,10 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.text.TextUtils;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
@@ -34,6 +32,7 @@ import android.widget.Toast;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.popup.TakingImageProfilePopup;
 import com.action.outdooractivityapp.service.ForcedTerminationService;
 import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -48,6 +47,8 @@ import net.daum.mf.map.api.MapView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,8 +64,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Intent intent;
     private BottomNavigationView navView;
     private final int MY_PERMISSIONS_REQUEST_LOCATION = 1;
+    private final int MY_PERMISSIONS_REQUEST_CAMERA = 2;
+    static final int REQUEST_TAKE_PHOTO = 3;
     public MapView mapView;
     private ImageView imageView_tracking_button;
+    private ImageView imageView_camera;
+
+    private String currentPhotoPath;
+    private Uri photoURI;
 
     private ViewGroup mapViewContainer;
 
@@ -77,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Map> trackingList = new ArrayList<Map>();
     //트래킹 거리 정보
     private List<Double> trackingDistanceList = new ArrayList<Double>();
+    //트래킹 사진 정보(위치포함)
+    private List<Map> trackingPhotoList = new ArrayList<Map>();
     private Location currentLocation;
     private Location startLocation;
     private Date startDate;
@@ -122,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     void initializeView() {
         navView = findViewById(R.id.nav_view);
         imageView_tracking_button = findViewById(R.id.imageView_tracking_button);
+        imageView_camera = findViewById(R.id.imageView_camera);
         //카카오지도
         mapView = new MapView(this);
         mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
@@ -133,32 +143,112 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //카카오지도
         mapView.setCurrentLocationEventListener(this);
         imageView_tracking_button.setOnClickListener(this);
+        imageView_camera.setOnClickListener(this);
     }
 
     //권한 설정 결과
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                //위치 사용 허가했을 때
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //현재위치 설정
-                    Log.d(TAG, "내위치 설정");
-                    mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeadingWithoutMapMoving);
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1500, 5, locationListener);
-                    }
-
-                //위치 사용 허가 안했을 때
-                } else {
-                    Log.d("TAG", "permission denied by user");
-                    Util.toastText(this,"위치권한을 허용해야 트래킹기능을 사용할 수 있습니다.");
+        if (requestCode == MY_PERMISSIONS_REQUEST_CAMERA) {
+            //위치 사용 허가했을 때
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //현재위치 설정
+                Log.d(TAG, "내위치 설정");
+                mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeadingWithoutMapMoving);
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1500, 5, locationListener);
                 }
-                return;
+
+            //위치 사용 허가 안했을 때
+            } else {
+                Log.d("TAG", "permission denied by user");
+                Util.toastText(this,"위치권한을 허용해야 트래킹기능을 사용할 수 있습니다.");
+            }
+        //카메라 권한 요청이였을 경우
+        }else if (requestCode == MY_PERMISSIONS_REQUEST_CAMERA) {
+            //승인
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this,"카메라 권한이 승인됨",Toast.LENGTH_LONG).show();
+                //카메라 실행
+                dispatchTakePictureIntent();
+                galleryAddPic();
+                //취소
+            } else {
+                Toast.makeText(this,"카메라 권한이 거절 되었습니다. 카메라를 이용하려면 권한을 승낙하여야 합니다.",Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    //카메라 촬영 결과
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        //카메라 촬영 성공
+        if(requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+            //트래킹의 photoList에 저장
+            if(currentPhotoPath != null){
+                Map map = new HashMap();
+                map.put("photo_image", currentPhotoPath);
+                map.put("latitude",currentLocation.getLatitude());
+                map.put("longitude",currentLocation.getLongitude());
+                trackingPhotoList.add(map);
+            }
+            //초기화
+            currentPhotoPath = null;
+        }
+    }
+
+    //카메라 촬영&저장 intent전송
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                //해당 경로(외부저장소)에 파일이 생성됨
+                photoURI = FileProvider.getUriForFile(this,"com.action.outdooractivityapp.fileprovider",photoFile);
+                Log.d(TAG,"[카메라 URI]:"+photoURI);
+                //Data결과가 파일URI로 output하겠다는 의미
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                //사진촬영을 하겠다는 의미
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
+    }
+
+    //파일생성(timeStamp이용)
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        File image = File.createTempFile( imageFileName,  ".jpg", storageDir);
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        Log.d(TAG,"[새로 생성된 FILE]:"+image);
+        Log.d(TAG,"[새로 생성된 FILE의 절대 경로]:"+currentPhotoPath);
+
+        return image;
+    }
+
+    //갤러리에서 인식 안될떄 인식되게 하기
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(currentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
 
     /*하단 네비게이션바 Listener*/
     private BottomNavigationView.OnNavigationItemSelectedListener OnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -212,8 +302,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(startLocation != null){
             startMarker(startLocation);
         }
-
-
     }
 
     @Override
@@ -304,6 +392,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 imageView_tracking_button.setImageResource(R.drawable.icon_video_pause);
                 trackingStatus = "start";
             }
+        //카메라 클릭
+        }else if(v.getId() == R.id.imageView_camera){
+            //카메라 권한 가져오기
+            int permssionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+            //카메라 권한 없을때
+            if (permssionCheck!= PackageManager.PERMISSION_GRANTED) {
+                //User에게 권한 요청
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CAMERA},
+                        MY_PERMISSIONS_REQUEST_CAMERA);
+            //카메라 권한 있을때
+            }else{
+                //카메라 촬영
+                dispatchTakePictureIntent();
+                galleryAddPic();
+            }
         }
      }
 
@@ -361,16 +465,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //현재위치 갱신
                 currentLocation = location;
 
-                //맵 다시 생성할때를 대비해서 위치정보 저장
-                Map map = new HashMap();
-                map.put("latitude",latitude);
-                map.put("longitude",longitude);
-                trackingList.add(map);
-                Log.d(TAG, "trackingList.size():"+trackingList.size());
-
-
                 //트랙킹 중일 때에만 리스트에추가하고 경로생성함.
                 if("start".equals(trackingStatus)) {
+
+                    //맵 다시 생성할때를 대비해서 위치정보 저장
+                    Map map = new HashMap();
+                    map.put("latitude",latitude);
+                    map.put("longitude",longitude);
+                    trackingList.add(map);
+                    Log.d(TAG, "[위치추가]");
+                    Log.d(TAG, "trackingList.size():"+trackingList.size());
 
                     //경로 생성
                     createRoutine();
@@ -490,6 +594,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         endDate = null;
         //이동거리 초기화
         trackingDistanceList.clear();
+        //사진 트래킹 리스트 초기화
+        trackingPhotoList.clear();
 
     }
 
@@ -533,6 +639,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         String location = Util.convertListMapToJsonString(trackingList);
                         Log.d(TAG,"location:"+location);
 
+                        //사진 트래킹 정보 List<Map> => Json으로 변환
+                        String photoListInfo = Util.convertListMapToJsonString(trackingPhotoList);
+                        Log.d(TAG,"photoListInfo:"+photoListInfo);
+
                         //이동거리 계산
                         double distance = 0;
                         for(double distanceItem : trackingDistanceList){
@@ -552,6 +662,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         intent.putExtra("startDate",format.format(startDate));
                         intent.putExtra("endDate",format.format(endDate));
                         intent.putExtra("distance",distance);
+                        intent.putExtra("photoListInfo",photoListInfo);
                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
                         startActivity(intent);
 

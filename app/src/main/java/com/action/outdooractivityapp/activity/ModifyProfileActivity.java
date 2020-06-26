@@ -8,7 +8,6 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -16,19 +15,14 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.popup.TakingImageProfilePopup;
-import com.action.outdooractivityapp.urlConnection.UploadFile;
+import com.action.outdooractivityapp.urlConnection.ProfileUploadFile;
 import com.action.outdooractivityapp.util.Util;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -190,7 +184,7 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
 
         //파일 업로드
         if(currentPhotoPath != null){
-            uploadFile(currentPhotoPath);
+            profileUploadFile(currentPhotoPath);
         //파일 업로드 없을 경우
         }else{
             //프로필 사진 초기화일 경우
@@ -219,12 +213,12 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
         Toast.makeText(getApplicationContext(),"변경이 완료됐습니다.", Toast.LENGTH_SHORT).show();
     }
 
-    public void uploadFile(String filePath){
-        String url = "https://wowoutdoor.tk/upload_file.php";
+    public void profileUploadFile(String filePath){
+        String url = "https://wowoutdoor.tk/profile_upload_file.php";
         try{
-            UploadFile uploadFile = new UploadFile(ModifyProfileActivity.this);
-            uploadFile.setPath(filePath);
-            uploadFile.execute(url);
+            ProfileUploadFile profileUploadFile = new ProfileUploadFile(ModifyProfileActivity.this);
+            profileUploadFile.setPath(filePath);
+            profileUploadFile.execute(url);
         }catch (Exception e){
             e.printStackTrace();
         }
