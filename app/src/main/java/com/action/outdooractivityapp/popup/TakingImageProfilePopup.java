@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +30,10 @@ import androidx.core.content.FileProvider;
 
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.activity.ModifyProfileActivity;
+import com.action.outdooractivityapp.service.LocationSharingService;
 import com.action.outdooractivityapp.util.Util;
+
+import net.daum.mf.map.api.MapView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,6 +51,7 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
     private final int PICK_FROM_ALBUM_CODE = 0;
     private final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
     static final int REQUEST_TAKE_PHOTO = 2;
+    private static final int MY_PERMISSIONS_REQUEST_READ = 3;
 
     private TextView text_back;
 
@@ -53,7 +59,11 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
     private Uri photoURI;
     private Uri albumURI;
 
-    private final String TAG = "ChoiceImageProfilePopup";
+    private String timeStamp;
+    private String imageFileName;
+    private File storageDir;
+
+    private static final String TAG = "ChoiceImageProfilePopup";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +79,13 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
         initializeView();
 
         registerListener();
+
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ);
+        }else {
+            Log.d(TAG,"읽기 허용되있음");
+        }
     }
 
     //dialog 크기 조정
@@ -154,6 +171,26 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
                 //Uri => Bitmap 변환
                 imageBitmap = Util.convertUriToBitmap(this, uri);
 
+                //-----------------------------------------------------------------------------------------------------------
+                //Uri를 실제경로로 변경
+                String imagePath = getRealPathFromURI(this, uri);
+                Log.d(TAG,"imagePath:"+imagePath);
+
+                // 이미지를 상황에 맞게 회전시킨다
+                if(imagePath != null){
+                    ExifInterface exif = null;
+                    try {
+                        exif = new ExifInterface(imagePath);
+                        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        Log.d(TAG,"exifOrientation:"+exifOrientation);
+                        int exifDegree = Util.exifOrientationToDegrees(exifOrientation);
+                        Log.d(TAG,"exifDegree:"+exifDegree);
+                        imageBitmap = Util.rotate(imageBitmap, exifDegree);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //------------------------------------------------------------------------------------------------------------------
                 //전 activity에 보내기
                 Intent intent = new Intent(TakingImageProfilePopup.this, ModifyProfileActivity.class);
 
@@ -178,6 +215,7 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
             Intent intent = new Intent(TakingImageProfilePopup.this, ModifyProfileActivity.class);
             intent.putExtra("imageUri",photoURI.toString());
             intent.putExtra("currentPhotoPath",currentPhotoPath);
+            intent.putExtra("imageFileName",imageFileName+timeStamp+".jpg");
             intent.putExtra("flag","camera");
             setResult(RESULT_OK,intent);
             finish();
@@ -187,14 +225,16 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
     //파일생성(timeStamp이용)
     private File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        imageFileName = "JPEG_" + timeStamp + "_";
+        storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         File image = File.createTempFile( imageFileName,  ".jpg", storageDir);
 
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
+        Log.d(TAG,"[storageDir]:"+storageDir.getAbsolutePath());
+        Log.d(TAG,"[imageFileName]:"+imageFileName);
         Log.d(TAG,"[새로 생성된 FILE]:"+image);
         Log.d(TAG,"[새로 생성된 FILE의 절대 경로]:"+currentPhotoPath);
 
@@ -252,6 +292,17 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
 
     }
 
+    private String getRealPathFromURI(Uri contentUri) {
+        int column_index=0;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
+        if(cursor.moveToFirst()){
+            column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        }
+
+        return cursor.getString(column_index);
+    }
+
     //앨범으로 가져온 경우, 이곳에서 외부저장소에 저장
     void saveToExternalStorage(){
         try {
@@ -266,11 +317,136 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
 
             FileOutputStream out = new FileOutputStream(albumFile);
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
             out.close();
         }catch(Exception e){
             e.printStackTrace();
         }
     }
+
+
+    //----------------------------------Uri를 실제경로로 변환시키기---------------------------------------
+    public static String getRealPathFromURI(final Context context, final Uri uri) {
+
+        // DocumentProvider
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+
+            // ExternalStorageProvider
+            if (isExternalStorageDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/"
+                            + split[1];
+                } else {
+                    String SDcardpath = getRemovableSDCardPath(context).split("/Android")[0];
+                    return SDcardpath +"/"+ split[1];
+                }
+            }
+
+            // DownloadsProvider
+            else if (isDownloadsDocument(uri)) {
+                final String id = DocumentsContract.getDocumentId(uri);
+                final Uri contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"),
+                        Long.valueOf(id));
+
+                return getDataColumn(context, contentUri, null, null);
+            }
+
+            // MediaProvider
+            else if (isMediaDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[] { split[1] };
+
+                return getDataColumn(context, contentUri, selection,
+                        selectionArgs);
+            }
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            // Return the remote address
+            if (isGooglePhotosUri(uri))
+                return uri.getLastPathSegment();
+            return getDataColumn(context, uri, null, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+        return null;
+    }
+
+
+    public static String getRemovableSDCardPath(Context context) {
+        File[] storages = ContextCompat.getExternalFilesDirs(context, null);
+        if (storages.length > 1 && storages[0] != null && storages[1] != null)
+            return storages[1].toString();
+        else
+            return "";
+    }
+
+
+    public static String getDataColumn(Context context, Uri uri,
+                                       String selection, String[] selectionArgs) {
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = { column };
+
+        try {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG,"읽기 허용되있음");
+                cursor = context.getContentResolver().query(uri, projection,
+                        selection, selectionArgs, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    final int index = cursor.getColumnIndexOrThrow(column);
+                    return cursor.getString(index);
+                }
+            }else{
+                Log.d(TAG,"읽기 허용 안됨");
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+
+
+    public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri
+                .getAuthority());
+    }
+
+
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri
+                .getAuthority());
+    }
+
+
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri
+                .getAuthority());
+    }
+
+
+    public static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri
+                .getAuthority());
+    }
+//------------------------------------------------------------------------------------------------
 
 
 }

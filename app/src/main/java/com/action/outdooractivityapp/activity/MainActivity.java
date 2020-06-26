@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,15 +29,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.adapter.CustomCalloutBalloonAdapter;
 import com.action.outdooractivityapp.popup.TakingImageProfilePopup;
 import com.action.outdooractivityapp.service.ForcedTerminationService;
 import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import net.daum.mf.map.api.CalloutBalloonAdapter;
 import net.daum.mf.map.api.CameraUpdateFactory;
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
@@ -136,6 +140,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mapView = new MapView(this);
         mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
         mapViewContainer.addView(mapView);
+        //커스텀 말풍선 적용
+        mapView.setCalloutBalloonAdapter(new CustomCalloutBalloonAdapter(this, trackingPhotoList));
     }
 
     void registerListener() {
@@ -196,6 +202,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     map.put("photo_image", currentPhotoPath);
                     map.put("latitude", latitude);
                     map.put("longitude", longitude);
+                    int order = trackingPhotoList.size()+1;
+                    map.put("order", order);
                     trackingPhotoList.add(map);
                 }
                 //초기화
@@ -309,12 +317,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mapView.removeAllPolylines();
         //모든 경로 다시 생성
         createAllRoutine();
-        //시작위치 다시 생성
+
+        // 마커삭제
+        mapView.removeAllPOIItems();
+        // 커스텀 말풍선 적용
+        mapView.setCalloutBalloonAdapter(new CustomCalloutBalloonAdapter(this, trackingPhotoList));
+        //시작마커 다시 생성
         if(startLocation != null){
             startMarker(startLocation);
         }
         //카메라 마커 지도에 표시
         createCameraMarkerAll();
+
     }
 
     @Override
@@ -578,13 +592,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //카메라 마커 지도에 표시 (카메라창 갔다오면 OnStop => OnRestart 돼서 OnRestart에서 불러옴)
     void createCameraMarkerAll(){
+        int order = 1;
         for(Map mapItem : trackingPhotoList){
             double latitude = Double.parseDouble(mapItem.get("latitude").toString());
             double longitude = Double.parseDouble(mapItem.get("longitude").toString());
 
             MapPOIItem customMarker = new MapPOIItem();
             customMarker.setItemName("사진");
-            customMarker.setTag(1);
+            customMarker.setTag(order++);
             MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(latitude, longitude);
             customMarker.setMapPoint(mapPoint);
             customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 마커타입을 커스텀 마커로 지정.
@@ -644,7 +659,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     void startMarker(Location location){
         MapPOIItem customMarker = new MapPOIItem();
         customMarker.setItemName("시작위치");
-        customMarker.setTag(1);
+        customMarker.setTag(0);
         MapPoint mapPoint = convertLocationToMapPoint(location);
         customMarker.setMapPoint(mapPoint);
         customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 마커타입을 커스텀 마커로 지정.

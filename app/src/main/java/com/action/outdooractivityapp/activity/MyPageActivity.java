@@ -4,8 +4,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,9 +22,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.urlConnection.BringImageFile;
 import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +133,20 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
                 && !"null".equals(AdminApplication.userMap.get("profile_image").toString())
                 && AdminApplication.profileImage != null){
             image_profile.setImageBitmap(AdminApplication.profileImage);
+            //------이미지 파일 서버에서 Bitmap으로 가져오기-------
+//            String profileImage = AdminApplication.userMap.get("profile_image").toString();
+//            Log.d(TAG,"profileImage:"+profileImage);
+//                BringImageFile bringImageFile = new BringImageFile(profileImage);
+//                bringImageFile.start();
+//                try{
+//                    bringImageFile.join();
+//                    //이미지 불러오기 완료되면 가져오기
+//                    Bitmap bitmap = bringImageFile.getBitmap();
+//                    image_profile.setImageBitmap(bitmap);
+//                }catch(InterruptedException e){
+//                    e.printStackTrace();
+//                }
+            //----------------------------------------------------
         //없으면 기본 프로필 사진 보여주기
         }else{
             image_profile.setImageResource(R.drawable.icon_profile);

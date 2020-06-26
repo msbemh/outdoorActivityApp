@@ -1,6 +1,8 @@
 package com.action.outdooractivityapp.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.ShapeDrawable;
@@ -8,6 +10,8 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -22,7 +26,15 @@ import com.action.outdooractivityapp.popup.TakingImageProfilePopup;
 import com.action.outdooractivityapp.urlConnection.ProfileUploadFile;
 import com.action.outdooractivityapp.util.Util;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +54,7 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
     private Uri uri;
     private Bitmap imageBitmap;
     private String currentPhotoPath;
+    private String imageFileName;
 
     private String nickName = AdminApplication.userMap.get("nick_name").toString();
     private Map userMap = AdminApplication.userMap;
@@ -126,8 +139,10 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
                     String uriString = data.getStringExtra("imageUri");
 
                     currentPhotoPath = data.getStringExtra("currentPhotoPath");
+//                    imageFileName = data.getStringExtra("imageFileName");
                     Log.d(TAG,"[넘어온 currentPhotoPath]:"+currentPhotoPath);
                     Log.d(TAG,"[넘어온 uri]:"+uriString);
+//                    Log.d(TAG,"[넘어온 imageFileName]:"+imageFileName);
 
                     uri = Uri.parse(uriString);
 
@@ -141,6 +156,7 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
                         try {
                             exif = new ExifInterface(currentPhotoPath);
                             int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                            Log.d(TAG,"exifOrientation:"+exifOrientation);
                             int exifDegree = exifOrientationToDegrees(exifOrientation);
                             Log.d(TAG,"exifDegree:"+exifDegree);
                             imageBitmap = rotate(imageBitmap, exifDegree);
@@ -148,11 +164,16 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
                             e.printStackTrace();
                         }
                     }
+
+                    //다시 회전된 이미지를 같은 파일에 저장시키자.
+//                    saveBitmaptoJpeg(imageBitmap);
+
                 }
 
                 //프로필 사진 있으면 보여주기
                 if(uri != null){
-                    image_profile.setImageURI(uri);
+//                    image_profile.setImageURI(uri);
+                    image_profile.setImageBitmap(imageBitmap);
                 //없으면 기본 프로필 사진 보여주기
                 }else{
                     image_profile.setImageResource(R.drawable.icon_profile_invert);
@@ -164,6 +185,27 @@ public class ModifyProfileActivity extends AppCompatActivity implements View.OnC
             }
         }
     }
+
+//    public void saveBitmaptoJpeg(Bitmap bitmap){
+//        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/DCIM/Camera/"+imageFileName;
+//        Log.d(TAG,"path:"+path);
+//
+//        // Get Absolute Path in External Sdcard
+//        File file_path;
+//        try{
+//            file_path = new File(path);
+//            if(!file_path.isDirectory()){
+//                file_path.mkdirs();
+//            }
+//            FileOutputStream out = new FileOutputStream(path);
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+//            out.close();
+//        }catch(FileNotFoundException exception){
+//            Log.e("FileNotFoundException", exception.getMessage());
+//        }catch(IOException exception){
+//            Log.e("IOException", exception.getMessage());
+//        }
+//    }
 
 
     void saveData(){

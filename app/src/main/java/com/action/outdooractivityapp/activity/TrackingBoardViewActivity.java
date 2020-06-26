@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
+import com.action.outdooractivityapp.adapter.CustomCalloutBalloonAdapter;
 import com.action.outdooractivityapp.urlConnection.BringImageFile;
 import com.action.outdooractivityapp.util.Util;
 
@@ -122,6 +123,7 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
         mapView = new MapView(this);
         mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
         mapViewContainer.addView(mapView);
+
     }
 
     void registerListener(){

@@ -7,24 +7,25 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.os.AsyncTask;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.util.Util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public class ProfileUploadFile extends AsyncTask<String, String, String> {
+public class ProfileUploadFile2 extends AsyncTask<String, String, String> {
 
     Context context;
     ProgressDialog progressDialog;
@@ -53,10 +54,12 @@ public class ProfileUploadFile extends AsyncTask<String, String, String> {
     byte[] buffer;
     int maxBufferSize = 1024;
     int serverResponseCode;
+    private Bitmap sourceBitmap;
+    private Bitmap rotatedBitmap;
 
     private static final String TAG = "profileUploadFile";
 
-    public ProfileUploadFile(Context context){
+    public ProfileUploadFile2(Context context){
         this.context = context;
     }
 
@@ -65,6 +68,20 @@ public class ProfileUploadFile extends AsyncTask<String, String, String> {
     public void setPath(String uploadFilePath){
         this.fileName = uploadFilePath;
         this.sourceFile = new File(uploadFilePath);
+        //--------이미지를 상황에 맞게 회전시킨다--------
+        sourceBitmap = BitmapFactory.decodeFile(uploadFilePath);
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(uploadFilePath);
+            int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            int exifDegree = Util.exifOrientationToDegrees(exifOrientation);
+            Log.d(TAG,"exifDegree:"+exifDegree);
+            rotatedBitmap = Util.rotate(sourceBitmap, exifDegree);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //---------------------------------------------
+
     }
 
     //AsyncTask 동작되기 전에 실행
@@ -89,7 +106,14 @@ public class ProfileUploadFile extends AsyncTask<String, String, String> {
             String success = "Success";
             Log.d(TAG,"sourceFile("+fileName+") is A File");
             try {
-                FileInputStream fileInputStream = new FileInputStream(sourceFile);
+
+//                FileInputStream fileInputStream = new FileInputStream(sourceFile);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG,100,bos);
+                byte[] bitmapData = bos.toByteArray();
+                InputStream inputStream = new ByteArrayInputStream(bitmapData);
+
+
                 URL url = new URL(strings[0]);
                 Log.d(TAG,"strings[0]:"+strings[0]);
 
@@ -127,22 +151,26 @@ public class ProfileUploadFile extends AsyncTask<String, String, String> {
                 dos.writeBytes("Content-Disposition: form-data; name='uploaded_file'; fileName='"+fileName+"'"+lineEnd);
                 dos.writeBytes(lineEnd);
 
-                bytesAvailable = fileInputStream.available();
+//                bytesAvailable = fileInputStream.available();
+                bytesAvailable = inputStream.available();
 
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
                 buffer = new byte[bufferSize];
 
                 //입력스트림으로 부터 0부터 bufferSize만큼 바이트를 읽어서 buffer[]에 저장
                 //읽은 바이트수 리턴
-                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+//                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                bytesRead = inputStream.read(buffer, 0, bufferSize);
 
                 while (bytesRead > 0){
                     //buffer[]에서 0부터 bufferSize만큼 출력하기
                     dos.write(buffer, 0, bufferSize);
                     //아래는 다시 buffer만들기
-                    bytesAvailable = fileInputStream.available();
+//                    bytesAvailable = fileInputStream.available();
+                    bytesAvailable = inputStream.available();
                     bufferSize =  Math.min(bytesAvailable, maxBufferSize);
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+//                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                    bytesRead = inputStream.read(buffer, 0, bufferSize);
                 }
 
                 dos.writeBytes(lineEnd);
@@ -173,7 +201,8 @@ public class ProfileUploadFile extends AsyncTask<String, String, String> {
                 //-------------------------------------------------------------------------
 
                 //close the streams
-                fileInputStream.close();
+//                fileInputStream.close();
+                inputStream.close();
                 dos.flush(); //남은 버퍼 출력하고 비우기
                 dos.close();
             }catch (Exception e){
