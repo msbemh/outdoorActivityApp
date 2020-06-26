@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //카메라 실행
                 dispatchTakePictureIntent();
                 galleryAddPic();
-                //취소
+            //취소
             } else {
                 Toast.makeText(this,"카메라 권한이 거절 되었습니다. 카메라를 이용하려면 권한을 승낙하여야 합니다.",Toast.LENGTH_LONG).show();
             }
@@ -186,16 +186,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //카메라 촬영 성공
         if(requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            //트래킹의 photoList에 저장
-            if(currentPhotoPath != null){
-                Map map = new HashMap();
-                map.put("photo_image", currentPhotoPath);
-                map.put("latitude",currentLocation.getLatitude());
-                map.put("longitude",currentLocation.getLongitude());
-                trackingPhotoList.add(map);
+            //트래킹 중일때에만 사진 저장
+            if("start".equals(trackingStatus)){
+                //트래킹의 photoList에 저장
+                if(currentPhotoPath != null){
+                    Map map = new HashMap();
+                    map.put("photo_image", currentPhotoPath);
+                    map.put("latitude",currentLocation.getLatitude());
+                    map.put("longitude",currentLocation.getLongitude());
+                    trackingPhotoList.add(map);
+                }
+                //초기화
+                currentPhotoPath = null;
+                //로그 찍어보기
+                for(Map map : trackingPhotoList){
+                    Log.d(TAG, "photo_image:"+map.get("photo_image").toString());
+                    Log.d(TAG, "latitude:"+map.get("latitude").toString());
+                    Log.d(TAG, "longitude:"+map.get("longitude").toString());
+                }
             }
-            //초기화
-            currentPhotoPath = null;
         }
     }
 

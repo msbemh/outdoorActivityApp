@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.action.outdooractivityapp.AdminApplication;
@@ -34,6 +35,8 @@ public class TrackingSave extends AsyncTask<String, String, Boolean> {
     private String difficult;
     private String photoListInfo;
     private int tracking_no;
+    private String serverImageRoute;
+    private boolean result;
 
     public TrackingSave(Context context){
         this.context = context;
@@ -100,25 +103,32 @@ public class TrackingSave extends AsyncTask<String, String, Boolean> {
     @Override
     protected Boolean doInBackground(String... strings) {
         try {
-            //섬네일 이미지 업로드
-            ThumbnailUploadRunnable thumbnailUploadRunnable = new ThumbnailUploadRunnable(context);
-            thumbnailUploadRunnable.setPath(photoPath);
-            thumbnailUploadRunnable.setUrl(thumbnailUrl);
-            Thread thread = new Thread(thumbnailUploadRunnable);
-            thread.start();
-            thread.join();
-            //서버의 이미지 경로
-            String serverImageRoute = thumbnailUploadRunnable.getServerImageRoute();
-            Log.d(TAG,"serverImageRoute:"+serverImageRoute);
-            //결과 체크
-            boolean result = thumbnailUploadRunnable.getResult();
-            Log.d(TAG,"result:"+result);
-            checkResult(result);
-            
+            //섬네일 이미지가 있을때
+            if(TextUtils.isEmpty(photoPath)){
+                Log.d(TAG,"serverImageRoute:"+serverImageRoute);
+            //섬네일 이미지가 없을때
+            }else{
+                //섬네일 이미지 업로드
+                ThumbnailUploadRunnable thumbnailUploadRunnable = new ThumbnailUploadRunnable(context);
+                thumbnailUploadRunnable.setPath(photoPath);
+                thumbnailUploadRunnable.setUrl(thumbnailUrl);
+                Thread thread = new Thread(thumbnailUploadRunnable);
+                thread.start();
+                thread.join();
+                //서버의 이미지 경로
+                serverImageRoute = thumbnailUploadRunnable.getServerImageRoute();
+                Log.d(TAG,"serverImageRoute:"+serverImageRoute);
+                //결과 체크
+                result = thumbnailUploadRunnable.getResult();
+                Log.d(TAG,"result:"+result);
+                checkResult(result);
+            }
+
             //섬네일 이미지경로와 트래킹 정보 INSERT
             result = trackingInfoAndThumbNailInsert(serverImageRoute);
             //결과 체크
             checkResult(result);
+            
             
 //            //트래킹 사진 리스트 업로드
 //            TrackingPhotosUploadFilesRunnable trackingPhotosUploadFilesRunnable = new TrackingPhotosUploadFilesRunnable(context);
@@ -134,17 +144,17 @@ public class TrackingSave extends AsyncTask<String, String, Boolean> {
 //            //결과 체크
 //            result = trackingPhotosUploadFilesRunnable.getResult();
 //            checkResult(result);
-//            
+//
 //            //트래킹 이미지 파일들 INSERT
 //            trackingPhotosInsert(serverImageRouteList);
-//            
+//
 //            if(finalResult){
 //                Util.toastText(context,"저장이 완료됐습니다.");
 //            }else{
 //                Util.toastText(context,"저장에 실패했습니다.");
 //            }
-            //트래킹 저장설정 창 끝내기
-            ((Activity)context).finish();
+//            //트래킹 저장설정 창 끝내기
+//            ((Activity)context).finish();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
