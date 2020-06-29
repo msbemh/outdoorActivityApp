@@ -13,14 +13,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
-import com.action.outdooractivityapp.adapter.CustomCalloutBalloonAdapter;
+import com.action.outdooractivityapp.adapter.CustomCalloutBalloonViewAdapter;
+import com.action.outdooractivityapp.adapter.RVTrackingBoardAdapter;
+import com.action.outdooractivityapp.adapter.RVTrackingPhotoListAdapter;
 import com.action.outdooractivityapp.urlConnection.BringImageFile;
 import com.action.outdooractivityapp.util.Util;
 
@@ -44,6 +45,7 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
     private String writer;
 
     private List<Map> trackingLocationList;
+    private List<Map> trackingPhotoList;
     private List<Map> trackingList;
     private Map trackingInfo;
     private ImageView image_back;
@@ -63,6 +65,10 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
     public MapView mapView;
     private ViewGroup mapViewContainer;
 
+    private RecyclerView recyclerView_photo_list;
+    public LinearLayoutManager layoutManagerTrackingPhotoList;
+    public RVTrackingPhotoListAdapter rvTrackingPhotoListAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,20 +82,38 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
         Log.d(TAG, "tracking_no:"+tracking_no);
         Log.d(TAG, "writer:"+writer);
 
-        initializeView();
 
-        registerListener();
-
-        //--------해당번호의 트래킹 위치 정보 가져오기---------
-        String url = "https://wowoutdoor.tk/tracking/tracking_select_info.php";
+        //--------해당번호의 트래킹 사진 정보 가져오기---------
+        String url = "https://wowoutdoor.tk/tracking/tracking_photo_select_query.php";
         String parameters = "tracking_no="+tracking_no;
         String method = "GET";
+
+        //데이터 베이스에서 트래킹 사진 정보를 가져옴
+        trackingPhotoList = Util.httpConn(url, parameters, method);
+        //-------------------------------------
+
+        //--------해당번호의 트래킹 위치 정보 가져오기---------
+        url = "https://wowoutdoor.tk/tracking/tracking_select_info.php";
+        parameters = "tracking_no="+tracking_no;
+        method = "GET";
 
         //데이터 베이스에서 트래킹위치 정보를 가져옴
         trackingLocationList = Util.httpConn(url, parameters, method);
         //-------------------------------------
+
+        //데이터 확인
+        Util.checkLogListMap(TAG, trackingPhotoList);
+
+        initializeView();
+
+        registerListener();
+
         //지도에 선긋기
         createPolyline();
+
+        //사진들 마커 표시하기
+        createPhotoMarker();
+
 
         //작성자만 삭제와 수정 가능하게 하기
         if(writer.equals(AdminApplication.userMap.get("user_id").toString())){
@@ -102,6 +126,8 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
 
         //해당번호의 트래킹 게시판 정보 가져오기
         settingInfo();
+
+        createApplyRecyclerview();
 
     }
 
@@ -123,6 +149,8 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
         mapView = new MapView(this);
         mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
         mapViewContainer.addView(mapView);
+        //커스텀 말풍선 적용
+        mapView.setCalloutBalloonAdapter(new CustomCalloutBalloonViewAdapter(this, trackingPhotoList));
 
     }
 
@@ -130,6 +158,23 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
         image_back.setOnClickListener(this);
         image_delete.setOnClickListener(this);
         image_check.setOnClickListener(this);
+    }
+
+    void createApplyRecyclerview(){
+        /*리사이클러뷰 생성*/
+        recyclerView_photo_list = findViewById(R.id.recyclerView_photo_list);
+        recyclerView_photo_list.setHasFixedSize(true);
+
+        /*리사이클러뷰 레이아웃 생성 및 적용*/
+        layoutManagerTrackingPhotoList = new LinearLayoutManager(this);
+        layoutManagerTrackingPhotoList.setOrientation(LinearLayoutManager.HORIZONTAL);
+
+        recyclerView_photo_list.setLayoutManager(layoutManagerTrackingPhotoList);
+
+        /*리사이클러뷰에 adapter적용*/
+        rvTrackingPhotoListAdapter = new RVTrackingPhotoListAdapter(this, trackingPhotoList, R.layout.row_recyclerview_tracking_photo_list, mapView);
+        Util.checkLogListMap(TAG, trackingPhotoList);
+        recyclerView_photo_list.setAdapter(rvTrackingPhotoListAdapter);
     }
 
     void createPolyline() {
@@ -158,6 +203,28 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
         MapPointBounds mapPointBounds = new MapPointBounds(polyline.getMapPoints());
         int padding = 100;
         mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds, padding));
+    }
+
+    //사진 마커 표시하기
+    void createPhotoMarker(){
+        for(Map mapItem : trackingPhotoList){
+            double latitude = Double.parseDouble(mapItem.get("latitude").toString());
+            double longitude = Double.parseDouble(mapItem.get("longitude").toString());
+            int tag = Integer.parseInt(mapItem.get("tag").toString());
+
+            MapPOIItem customMarker = new MapPOIItem();
+            customMarker.setItemName("사진");
+            customMarker.setTag(tag);
+            MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(latitude, longitude);
+            customMarker.setMapPoint(mapPoint);
+            customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 마커타입을 커스텀 마커로 지정.
+            customMarker.setCustomImageResourceId(R.drawable.icon_camera_marker); // 마커 이미지.
+            customMarker.setCustomImageAutoscale(false); // hdpi, xhdpi 등 안드로이드 플랫폼의 스케일을 사용할 경우 지도 라이브러리의 스케일 기능을 꺼줌.
+            customMarker.setCustomImageAnchor(0.5f, 1.0f); // 마커 이미지중 기준이 되는 위치(앵커포인트) 지정 - 마커 이미지 좌측 상단 기준 x(0.0f ~ 1.0f), y(0.0f ~ 1.0f) 값.
+
+            mapView.addPOIItem(customMarker);
+
+        }
     }
 
 
@@ -221,7 +288,7 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
     void startMarker(Map map){
         MapPOIItem customMarker = new MapPOIItem();
         customMarker.setItemName("시작위치");
-        customMarker.setTag(1);
+        customMarker.setTag(0);
         MapPoint mapPoint = convertMapToMapPoint(map);
         customMarker.setMapPoint(mapPoint);
         customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 마커타입을 커스텀 마커로 지정.
@@ -235,7 +302,7 @@ public class TrackingBoardViewActivity extends AppCompatActivity implements View
     void endMarker(Map map){
         MapPOIItem customMarker = new MapPOIItem();
         customMarker.setItemName("도착위치");
-        customMarker.setTag(2);
+        customMarker.setTag(0);
         MapPoint mapPoint = convertMapToMapPoint(map);
         customMarker.setMapPoint(mapPoint);
         customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 마커타입을 커스텀 마커로 지정.

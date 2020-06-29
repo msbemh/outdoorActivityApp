@@ -47,8 +47,6 @@ public class TrackingPhotosUploadRunnable implements Runnable {
     private String urlString;
     //업로드 성공(true)/실패(false)
     private boolean result = true;
-    //서버의 이미지 저장경로
-    private List<String> serverImageRouteList = new ArrayList<String>();
 
     public TrackingPhotosUploadRunnable(Context context){
         this.context = context;
@@ -68,11 +66,6 @@ public class TrackingPhotosUploadRunnable implements Runnable {
     //결과 보내주기
     public boolean getResult(){
         return this.result;
-    }
-
-    //서버 이미지 경로 리스트 보내주기
-    public List<String> getServerImageRouteList(){
-        return serverImageRouteList;
     }
 
     //백그라운드에서 실행
@@ -180,7 +173,7 @@ public class TrackingPhotosUploadRunnable implements Runnable {
                     String line = null;
                     while((line = rd.readLine()) != null){
                         Log.d(TAG,"Upload State:"+line);
-                        serverImageRouteList.add(line);
+                        mapItem.put("photo_server_image", line);
                     }
                     //-------------------------------------------------------------------------
 

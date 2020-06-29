@@ -349,7 +349,7 @@ public class TakingImageProfilePopup extends Activity implements View.OnClickLis
             else if (isDownloadsDocument(uri)) {
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"),
+                        Uri.parse("content://downloads/my_downloads"),
                         Long.valueOf(id));
 
                 return getDataColumn(context, contentUri, null, null);

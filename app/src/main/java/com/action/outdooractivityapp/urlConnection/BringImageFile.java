@@ -38,7 +38,7 @@ public class BringImageFile extends Thread {
                 InputStream is = conn.getInputStream(); //inputStream 값 가져오기
 
                 bitmap = BitmapFactory.decodeStream(is); // Bitmap으로 반환
-                Log.d(TAG,"bitmap:"+bitmap);
+                Log.d(TAG,"bitmap:"+bitmap.getByteCount());
             }
         }catch (Exception e){
             e.printStackTrace();

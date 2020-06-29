@@ -280,8 +280,8 @@ public class Util {
                 while (keys.hasNext()){
                     String key = keys.next();
                     jsonObject.put(key, mapItem.get(key));
-                    jsonArray.put(jsonObject);
                 }
+                jsonArray.put(jsonObject);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -306,13 +306,13 @@ public class Util {
             for(int i=0; i<jsonArray.length(); i++){
                 JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
                 //map을 jsonObject로 변환
+                Map map = new HashMap();
                 Iterator<String> keys = jsonObject.keys();
                 while (keys.hasNext()){
                     String key = keys.next();
-                    Map map = new HashMap();
                     map.put(key,jsonObject.get(key));
-                    resultList.add(map);
                 }
+                resultList.add(map);
             }
             return resultList;
 
@@ -354,6 +354,18 @@ public class Util {
             }
         }
         return bitmap;
+    }
+
+    //------------------ 로그 확인 ------------------------
+    public static void checkLogListMap(String tag, List<Map> list){
+        for(Map mapItem : list){
+            Iterator<String> iteratorK = mapItem.keySet().iterator();
+            while (iteratorK.hasNext()) {
+                String key = iteratorK.next();
+                String value = mapItem.get(key).toString();
+                Log.d(tag,"[key]:" + key + ", [value]:" + value);
+            }
+        }
     }
 
 }

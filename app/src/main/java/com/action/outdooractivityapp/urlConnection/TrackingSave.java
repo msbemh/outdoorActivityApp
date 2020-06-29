@@ -10,6 +10,7 @@ import android.util.Log;
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.util.Util;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ public class TrackingSave extends AsyncTask<String, String, Boolean> {
     private int tracking_no;
     private String serverImageRoute;
     private boolean result;
+    private List<Map> photoList;
 
     public TrackingSave(Context context){
         this.context = context;
@@ -128,34 +130,61 @@ public class TrackingSave extends AsyncTask<String, String, Boolean> {
             result = trackingInfoAndThumbNailInsert(serverImageRoute);
             //결과 체크
             checkResult(result);
+
+            //jsonString => List<Map> 변경
+            photoList = Util.convertJsonStringToListMap(photoListInfo);
             
-            
-//            //트래킹 사진 리스트 업로드
-//            TrackingPhotosUploadFilesRunnable trackingPhotosUploadFilesRunnable = new TrackingPhotosUploadFilesRunnable(context);
-//            //jsonString => List<Map> 변경
-//            List<Map> photoList = Util.convertJsonStringToListMap(photoListInfo);
-//            trackingPhotosUploadFilesRunnable.setPaths(photoList);
-//            trackingPhotosUploadFilesRunnable.setUrl(trackingPhotosUrl);
-//            thread = new Thread(thumbnailUploadRunnable);
-//            thread.start();
-//            thread.join();
-//            //서버의 이미지 경로 리스트
-//            List<String> serverImageRouteList = trackingPhotosUploadFilesRunnable.getServerImageRouteList();
-//            //결과 체크
-//            result = trackingPhotosUploadFilesRunnable.getResult();
-//            checkResult(result);
+            //------------------ 로그 확인 ------------------------
+//            for(Map mapItem : photoList){
+//                Iterator<String> iteratorK = mapItem.keySet().iterator();
+//                while (iteratorK.hasNext()) {
+//                    String key = iteratorK.next();
+//                    String value = mapItem.get(key).toString();
+//                    Log.d(TAG,"[key]:" + key + ", [value]:" + value);
+//                }
 //
-//            //트래킹 이미지 파일들 INSERT
-//            trackingPhotosInsert(serverImageRouteList);
-//
-//            if(finalResult){
-//                Util.toastText(context,"저장이 완료됐습니다.");
-//            }else{
-//                Util.toastText(context,"저장에 실패했습니다.");
+//                Log.d(TAG,"latitude:"+mapItem.get("latitude").toString());
+//                Log.d(TAG,"longitude:"+mapItem.get("longitude").toString());
+//                Log.d(TAG,"order:"+mapItem.get("order").toString());
+//                Log.d(TAG,"photo_image:"+mapItem.get("photo_image").toString());
 //            }
-//            //트래킹 저장설정 창 끝내기
-//            ((Activity)context).finish();
-        } catch (InterruptedException e) {
+            //----------------------------------------------------------
+            
+            //사진리스트가 존재하지 않을때
+            if(photoList.size() == 0){
+
+            //사진리스트가 존재할때
+            }else{
+                TrackingPhotosUploadRunnable trackingPhotosUploadRunnable = new TrackingPhotosUploadRunnable(context);
+
+                trackingPhotosUploadRunnable.setPaths(photoList);
+                trackingPhotosUploadRunnable.setUrl(trackingPhotosUrl);
+                Thread thread = new Thread(trackingPhotosUploadRunnable);
+                thread.start();
+                thread.join();
+                //결과 체크
+                result = trackingPhotosUploadRunnable.getResult();
+                checkResult(result);
+
+                //------------------ 로그 확인 ------------------------
+                for(Map mapItem : photoList){
+                    Iterator<String> iteratorK = mapItem.keySet().iterator();
+                    while (iteratorK.hasNext()) {
+                        String key = iteratorK.next();
+                        String value = mapItem.get(key).toString();
+                        Log.d(TAG,"[key]:" + key + ", [value]:" + value);
+                    }
+                }
+                //----------------------------------------------------------
+                
+                //트래킹 이미지 파일들 INSERT
+                result = trackingPhotosInsert();
+                //결과 체크
+                checkResult(result);
+                //트래킹 저장설정 창 끝내기
+            }
+            ((Activity)context).finish();
+        }  catch (InterruptedException e) {
             e.printStackTrace();
         }
         return true;
@@ -186,27 +215,26 @@ public class TrackingSave extends AsyncTask<String, String, Boolean> {
     }
 
     //트래킹 이미지 파일들 INSERT
-    boolean trackingPhotosInsert(List<String> serverImageRouteList){
+    boolean trackingPhotosInsert(){
         boolean result = true;
-        for(String serverImageRoute : serverImageRouteList){
-            //url, paramters, method정보가 필요함.
-            String url = "https://wowoutdoor.tk/tracking/tracking_photo_insert_query.php";
-            String parameters = "user_id="+ AdminApplication.userMap.get("user_id")+"&nick_name="+AdminApplication.userMap.get("nick_name")
-                    +"&location="+location+"&title="+title+"&is_public="+is_public+"&tracking_image_route="+serverImageRoute
-                    +"&distance="+distance+"&start_date="+startDate+"&end_date="+endDate+"&difficult="+difficult;
-            String method = "POST";
-            Log.d(TAG,"url:"+url+"?"+parameters);
-            Log.d(TAG,"parameters:"+parameters);
+        //List<Map> => JsonString으로 변환
+        String photoListJsonString = Util.convertListMapToJsonString(photoList);
+        //url, paramters, method정보가 필요함.
+        String url = "https://wowoutdoor.tk/tracking/tracking_photo_insert_query.php";
+        String parameters = "tracking_no="+ tracking_no+"&photoListJsonString="+photoListJsonString;
+        String method = "POST";
+        Log.d(TAG,"photoListJsonString:"+photoListJsonString);
+        Log.d(TAG,"url:"+url+"?"+parameters);
+        Log.d(TAG,"parameters:"+parameters);
 
-            //데이터 베이스에서 정보를 가져옴
-            List<Map> resultList = Util.httpConn(url, parameters, method);
-            //result : true  => 트래킹정보 저장 성공
-            //result : false => 트래킹정보 저장 실패
-            result = Boolean.parseBoolean(resultList.get(0).get("result").toString());
-            //결과 체크
-            if(!result){
-                result = false;
-            }
+        //데이터 베이스에서 정보를 가져옴
+        List<Map> resultList = Util.httpConn(url, parameters, method);
+        //result : true  => 트래킹정보 저장 성공
+        //result : false => 트래킹정보 저장 실패
+        result = Boolean.parseBoolean(resultList.get(0).get("result").toString());
+        //결과 체크
+        if(!result){
+            result = false;
         }
         return result;
     }
@@ -222,6 +250,11 @@ public class TrackingSave extends AsyncTask<String, String, Boolean> {
     @Override
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
+        if(finalResult){
+            Util.toastText(context,"저장이 완료됐습니다.");
+        }else{
+            Util.toastText(context,"저장에 실패했습니다.");
+        }
         //프로그래스 대화상장 끄기
         progressDialog.dismiss();
     }

@@ -29,27 +29,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.action.outdooractivityapp.AdminApplication;
 import com.action.outdooractivityapp.R;
 import com.action.outdooractivityapp.adapter.CustomCalloutBalloonAdapter;
-import com.action.outdooractivityapp.popup.TakingImageProfilePopup;
 import com.action.outdooractivityapp.service.ForcedTerminationService;
 import com.action.outdooractivityapp.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import net.daum.mf.map.api.CalloutBalloonAdapter;
 import net.daum.mf.map.api.CameraUpdateFactory;
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
-import net.daum.mf.map.api.MapPointBounds;
 import net.daum.mf.map.api.MapPolyline;
 import net.daum.mf.map.api.MapView;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -202,8 +195,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     map.put("photo_image", currentPhotoPath);
                     map.put("latitude", latitude);
                     map.put("longitude", longitude);
-                    int order = trackingPhotoList.size()+1;
-                    map.put("order", order);
+                    int tag = trackingPhotoList.size()+1;
+                    map.put("tag", tag);
                     trackingPhotoList.add(map);
                 }
                 //초기화
@@ -503,6 +496,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d(TAG, "[위치추가]");
                     Log.d(TAG, "trackingList.size():"+trackingList.size());
 
+
+
                     //경로 생성
                     createRoutine();
 
@@ -592,14 +587,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //카메라 마커 지도에 표시 (카메라창 갔다오면 OnStop => OnRestart 돼서 OnRestart에서 불러옴)
     void createCameraMarkerAll(){
-        int order = 1;
+        int tag = 1;
         for(Map mapItem : trackingPhotoList){
             double latitude = Double.parseDouble(mapItem.get("latitude").toString());
             double longitude = Double.parseDouble(mapItem.get("longitude").toString());
 
             MapPOIItem customMarker = new MapPOIItem();
             customMarker.setItemName("사진");
-            customMarker.setTag(order++);
+            customMarker.setTag(tag++);
             MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(latitude, longitude);
             customMarker.setMapPoint(mapPoint);
             customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 마커타입을 커스텀 마커로 지정.
@@ -686,6 +681,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //트래킹 정보 List<Map> => Json으로 변환
+                        Log.d(TAG,"trackingList.size():"+trackingList.size());
                         String location = Util.convertListMapToJsonString(trackingList);
                         Log.d(TAG,"location:"+location);
 
