@@ -24,7 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activity.TrackingInfoInputActivity"></activity>
+        <activity android:name=".activity.GetDirectionsActivity"></activity>
+        <activity android:name=".activity.TrackingInfoInputActivity" />
         <activity android:name=".activity.TrackingBoardViewActivity" />
         <activity android:name=".activity.TrackingBoardActivity" />
         <activity android:name=".activity.LocationSharingMap" />
@@ -32,6 +33,10 @@
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="@string/kakao_map_key" />
+        <!-- 구글맵 키 -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
 
         <activity android:name=".activity.RoomMicrophoneActivity" />
         <activity
@@ -45,6 +50,7 @@
         <activity android:name=".activity.TogetherActivity" />
         <activity android:name=".activity.TogetherUserListActivity" />
         <activity android:name=".activity.TrackingBoardPrivateActivity" />
+        <activity android:name=".activity.FaceDetectCameraActivity" />
 
         <service
             android:name=".service.SocketService"

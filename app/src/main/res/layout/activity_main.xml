@@ -36,6 +36,15 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:srcCompat="@drawable/icon_camera" />
 
+    <ImageView
+        android:id="@+id/imageView_get_direction"
+        android:layout_margin="20dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:srcCompat="@drawable/icon_get_directions" />
+
     <!--하단 네비게이션-->
     <include
         android:id="@+id/includ_bottom_navigation"

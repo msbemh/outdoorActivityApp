@@ -9,6 +9,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.Map;
 
 public class URLConnector extends Thread {
 
@@ -18,6 +20,7 @@ public class URLConnector extends Thread {
     private String URL;
     private String method;
     private String parameters;
+    private Map headerInfoMap;
 
     public URLConnector(String url, String method){
         this.URL = url;
@@ -28,6 +31,13 @@ public class URLConnector extends Thread {
         this.URL = url;
         this.method = method;
         this.parameters = parameters;
+    }
+
+    public URLConnector(String url, String method, String parameters, Map headerInfoMap){
+        this.URL = url;
+        this.method = method;
+        this.parameters = parameters;
+        this.headerInfoMap = headerInfoMap;
     }
 
     @Override
@@ -44,23 +54,42 @@ public class URLConnector extends Thread {
         StringBuilder output = new StringBuilder();
         try {
             URL url = null;
+            //GET
             if("GET".equals(method)){
-                //넘겨줄 파라미터가 있을때
+                //넘겨줄 파라미터가 없을때
                 if(TextUtils.isEmpty(parameters)){
                     url = new URL(URL);
-                //넘겨줄 파라미터가 없을때
+                //넘겨줄 파라미터가 있을때
                 }else{
                     url = new URL(URL+"?"+parameters);
                 }
+            //POST
             }else if("POST".equals(method)){
                 url = new URL(URL);
             }
+
+
+            //HttpURLConnection객체 생성
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            Log.d(TAG,"url:"+url);
+
             if (conn != null) {
                 //전송모드 설정 - 기본적인 설정
                 conn.setConnectTimeout(10000);
                 conn.setRequestMethod("GET");
                 conn.setDoInput(true);
+
+                //헤더 정보 로그 출력
+                if(headerInfoMap != null){
+                    Iterator<String> iteratorK = headerInfoMap.keySet().iterator();
+                    while (iteratorK.hasNext()) {
+                        String key = iteratorK.next();
+                        String value = headerInfoMap.get(key).toString();
+                        Log.d(TAG,"[key]:" + key + ", [value]:" + value);
+                        //헤더 정보 추가
+                        conn.setRequestProperty(key,value);
+                    }
+                }
 
                 //서버로 데이터 전송
                 if("POST".equals(method)){

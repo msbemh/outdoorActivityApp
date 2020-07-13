@@ -53,7 +53,9 @@ public class Util {
 
         //데이터베이스 결과 가져오기
         String result = urlConnector.getResult();
+        Log.d(TAG,"result:"+result);
         JSONArray jsonArray = null;
+
         try {
             if(!TextUtils.isEmpty(result)){
                 jsonArray = new JSONArray(result);
@@ -66,6 +68,68 @@ public class Util {
         }
 
         return list;
+
+    }
+
+    //데이터베이스에서 정보 가져오기(Android => http => mysql)
+    public static Map httpConnMap(String url, String parameters, String method){
+
+        Map map = new HashMap();
+
+        URLConnector urlConnector = new URLConnector(url, method, parameters);
+
+        urlConnector.start();
+
+        try{
+            urlConnector.join();
+        }
+        catch(InterruptedException e){
+            e.printStackTrace();
+        }
+
+        //데이터베이스 결과 가져오기
+        String result = urlConnector.getResult();
+        Log.d(TAG,"result:"+result);
+        try {
+            if(!TextUtils.isEmpty(result)){
+                JSONObject jsonObject = new JSONObject(result);
+                map = jsonToMap(jsonObject);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return map;
+
+    }
+
+    //데이터베이스에서 정보 가져오기(Android => http => mysql)
+    public static Map httpConnMap(String url, String parameters, String method, Map headrInfoMap){
+
+        Map map = new HashMap();
+
+        URLConnector urlConnector = new URLConnector(url, method, parameters, headrInfoMap);
+
+        urlConnector.start();
+
+        try{
+            urlConnector.join();
+        }
+        catch(InterruptedException e){
+            e.printStackTrace();
+        }
+
+        //데이터베이스 결과 가져오기
+        String result = urlConnector.getResult();
+        Log.d(TAG,"result:"+result);
+        try {
+            if(!TextUtils.isEmpty(result)){
+                JSONObject jsonObject = new JSONObject(result);
+                map = jsonToMap(jsonObject);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return map;
 
     }
 

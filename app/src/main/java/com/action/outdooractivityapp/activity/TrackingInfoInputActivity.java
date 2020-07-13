@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -32,7 +33,7 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
     private final String TAG = "TrackingInfoActivity";
     private Intent intent;
     private EditText editText_title;
-    private RadioGroup radioGroup_public_private;
+    private CheckBox check_public_private;
     private RadioGroup radioGroup_difficult;
     private ImageView imageView_thumbnail;
     private ImageView image_back;
@@ -82,7 +83,7 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
 
     void initializeView(){
         editText_title = findViewById(R.id.editText_title);
-        radioGroup_public_private = findViewById(R.id.radioGroup_public_private);
+        check_public_private = findViewById(R.id.check_public_private);
         imageView_thumbnail = findViewById(R.id.imageView_thumbnail);
         image_back = findViewById(R.id.image_back);
         image_check = findViewById(R.id.image_check);
@@ -115,21 +116,10 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
                 return;
             }
 
-            //라디오 그룹 선택된 ID가져오기 (공개/비공개)
-            int selected_is_public_radio_id = radioGroup_public_private.getCheckedRadioButtonId();
-            Log.d(TAG,"selected_is_public_radio_id:"+selected_is_public_radio_id);
-
-            //라디오 그룹 체크했는지 검사 (아무것도 체크하지 않으면 -1임)
-            if(selected_is_public_radio_id == -1){
-                Util.toastText(this, "공개여부를 선택해주세요.");
-                return;
-            }
-
-            //선택된 라디오 Text에 따라서 is_public(true,false) 정하기
-            RadioButton radioButton = findViewById(selected_is_public_radio_id);
-            if("공개".equals(radioButton.getText().toString())){
+            //공개여부체크
+            if(check_public_private.isChecked()){
                 is_public = true;
-            }else if("비공개".equals(radioButton.getText().toString())){
+            }else{
                 is_public = false;
             }
 
@@ -137,7 +127,7 @@ public class TrackingInfoInputActivity extends AppCompatActivity implements View
             int selected_dfficult_radio_id = radioGroup_difficult.getCheckedRadioButtonId();
 
             //선택된 라디오 Text에 따라서 difficult(쉬움=>easy, 보통=>usual, 어려움=>hard)정하기
-            radioButton = findViewById(selected_dfficult_radio_id);
+            RadioButton radioButton = findViewById(selected_dfficult_radio_id);
             if("쉬움".equals(radioButton.getText().toString())){
                 difficult = "easy";
             }else if("보통".equals(radioButton.getText().toString())){

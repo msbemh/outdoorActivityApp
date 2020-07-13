@@ -61,28 +61,18 @@
             android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="25sp"
+            android:textSize="23sp"
             android:textColor="@color/colorBlack"
             android:layout_marginTop="10dp"
-            android:text="공개여부" />
+            android:text="트래킹정보를 공개하시겠습니까?" />
 
-        <RadioGroup
-            android:id="@+id/radioGroup_public_private"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="공개"
+            android:id="@+id/check_public_private"
+            android:checked="true" />
 
-            <RadioButton
-                android:id="@+id/radioButton_public"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="공개" />
-
-            <RadioButton
-                android:id="@+id/radioButton_private"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="비공개" />
-        </RadioGroup>
 
         <TextView
             android:id="@+id/textView4"
@@ -91,7 +81,7 @@
             android:textSize="25sp"
             android:textColor="@color/colorBlack"
             android:layout_marginTop="10dp"
-            android:text="난이도" />
+            android:text="트래킹 난이도" />
 
         <RadioGroup
             android:id="@+id/radioGroup_difficult"

@@ -42,6 +42,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
     private Button button_modify_profile;
     private Button button_logout;
     private FrameLayout frameLayout_my_tracking;
+    private FrameLayout frameLayout_mask_picture;
     private TextView text_my_tracking_count;
 
     private static final String TAG = "MyPage";
@@ -97,6 +98,11 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
             intent = new Intent(this, TrackingBoardPrivateActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); //연속으로 2번 눌러도 activity가 2개 생성되지 않도록 하기위해서 사용.
             startActivity(intent);
+        //얼굴 마스크 촬영
+        }else if(v.getId() == R.id.frameLayout_mask_picture){
+            intent = new Intent(this, FaceDetectCameraActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP); //연속으로 2번 눌러도 activity가 2개 생성되지 않도록 하기위해서 사용.
+            startActivity(intent);
         }
     }
 
@@ -108,6 +114,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
         button_logout = findViewById(R.id.button_logout);
         frameLayout_my_tracking = findViewById(R.id.frameLayout_my_tracking);
         text_my_tracking_count = findViewById(R.id.text_my_tracking_count);
+        frameLayout_mask_picture = findViewById(R.id.frameLayout_mask_picture);
     }
 
     void registerListener(){
@@ -115,6 +122,7 @@ public class MyPageActivity extends AppCompatActivity implements View.OnClickLis
         button_modify_profile.setOnClickListener(this);
         button_logout.setOnClickListener(this);
         frameLayout_my_tracking.setOnClickListener(this);
+        frameLayout_mask_picture.setOnClickListener(this);
     }
 
     @Override

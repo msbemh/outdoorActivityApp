@@ -118,6 +118,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         List<Map> resultList = Util.httpConn(url, parameters, method);
         //cnt : 0  => 작성한 id,pw와 일치하는 정보가 없음.
         //cnt : 1  => 작성한 id,pw와 일치하는 정보가 있음.
+        Log.d(TAG,"resultList.get(0):"+resultList.get(0));
         int cnt = Integer.parseInt(resultList.get(0).get("cnt").toString());
 
         if(cnt>0){

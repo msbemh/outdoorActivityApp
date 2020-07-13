@@ -87,7 +87,7 @@
             app:srcCompat="@drawable/icon_route" />
 
         <TextView
-            android:id="@+id/textView13"
+            android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -107,6 +107,37 @@
             android:textStyle="bold" />
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/frameLayout_mask_picture"
+        android:layout_width="122dp"
+        android:layout_height="107dp"
+        android:background="@drawable/border"
+        app:layout_constraintBottom_toBottomOf="@+id/frameLayout_my_tracking"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/frameLayout_my_tracking">
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="77dp"
+            android:layout_height="49dp"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="10dp"
+            app:srcCompat="@drawable/icon_camera" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:text="얼굴 마스크 촬영"
+            android:textColor="@color/colorBlack"
+            android:textStyle="bold" />
+
+    </FrameLayout>
 
     <!--하단 네비게이션-->
     <include

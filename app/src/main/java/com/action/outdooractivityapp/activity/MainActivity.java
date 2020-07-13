@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     static final int REQUEST_TAKE_PHOTO = 3;
     public MapView mapView;
     private ImageView imageView_tracking_button;
+    private ImageView imageView_get_direction;
     private ImageView imageView_camera;
 
     private String currentPhotoPath;
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         navView = findViewById(R.id.nav_view);
         imageView_tracking_button = findViewById(R.id.imageView_tracking_button);
         imageView_camera = findViewById(R.id.imageView_camera);
+        imageView_get_direction = findViewById(R.id.imageView_get_direction);
         //카카오지도
         mapView = new MapView(this);
         mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
@@ -143,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mapView.setCurrentLocationEventListener(this);
         imageView_tracking_button.setOnClickListener(this);
         imageView_camera.setOnClickListener(this);
+        imageView_get_direction.setOnClickListener(this);
     }
 
     //권한 설정 결과
@@ -157,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1500, 5, locationListener);
                 }
-
             //위치 사용 허가 안했을 때
             } else {
                 Log.d("TAG", "permission denied by user");
@@ -428,6 +430,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 dispatchTakePictureIntent();
                 galleryAddPic();
             }
+        //길찾기 클릭
+        }else if(v.getId() == R.id.imageView_get_direction){
+            intent = new Intent(this, GetDirectionsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); //재생성 하지않고 해당 activity를 제일 위로 올리기
+            startActivity(intent);
         }
      }
 
